@@ -14,6 +14,18 @@ Documentation
 
 All documentation is available `here <https://qiskit.github.io/qiskit-addon-dice-solver/>`_.
 
+Supported Platforms
+-------------------
+
+Architectures:
+
+- x86_64
+
+Operating systems:
+
+- Ubuntu 24.04 LTS - Noble Numbat
+- Ubuntu 22.04 LTS - Jammy Jellyfish
+
 Installation
 ------------
 
@@ -34,18 +46,6 @@ And finally, to install the Python package:
 .. code-block:: bash
    
    pip install .
-
-Supported Platforms
--------------------
-
-Architectures:
-
-- x86_64
-
-Operating systems:
-
-- Ubuntu 24.04 LTS - Noble Numbat
-- Ubuntu 22.04 LTS - Jammy Jellyfish
 
 Limitations
 -----------

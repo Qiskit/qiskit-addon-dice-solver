@@ -4,6 +4,7 @@
 
 * [About](#about)
 * [Documentation](#documentation)
+* [Supported Platforms](#supported-platforms)
 * [Installation](#installation)
 * [Limitations](#limitations)
 * [Deprecation Policy](#deprecation-policy)
@@ -31,6 +32,19 @@ All documentation is available at https://qiskit.github.io/qiskit-addon-dice-sol
 
 ----------------------------------------------------------------------------------------------------
 
+### Supported Platforms:
+
+Architectures:
+
+- x86_64
+
+Operating systems:
+
+- Ubuntu 24.04 LTS - Noble Numbat
+- Ubuntu 22.04 LTS - Jammy Jellyfish
+
+----------------------------------------------------------------------------------------------------
+
 ### Installation:
 
 First, install some required libraries:
@@ -44,14 +58,6 @@ To build the binaries required for this package:
 And finally, to install the Python package:
 
 ``pip install .``
-
-##### Supported Platforms
-Architectures:
-- x86_64
-
-Operating systems:
-- Ubuntu 24.04 LTS - Noble Numbat
-- Ubuntu 22.04 LTS - Jammy Jellyfish
 
 ----------------------------------------------------------------------------------------------------
 
