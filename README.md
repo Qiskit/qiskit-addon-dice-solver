@@ -29,6 +29,8 @@ We acknowledge Sandeep Sharma's support, suggestions, and conversations which ma
 
 All documentation is available at https://qiskit.github.io/qiskit-addon-dice-solver/.
 
+----------------------------------------------------------------------------------------------------
+
 ### Installation:
 
 First, install some required libraries:
