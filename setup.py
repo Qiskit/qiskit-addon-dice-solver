@@ -13,6 +13,7 @@ setup(
     extras_require={
         "dev": ["tox>=4.0", "pytest>=8.0"],
         "docs": [
+            "matplotlib",
             "qiskit-sphinx-theme~=2.0.0",
             "sphinx-design",
             "sphinx-autodoc-typehints",

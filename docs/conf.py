@@ -55,10 +55,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.linkcode",
     "sphinx.ext.intersphinx",
-    "matplotlib.sphinxext.plot_directive",
     "sphinx_copybutton",
-    "reno.sphinxext",
-    "nbsphinx",
     "qiskit_sphinx_theme",
 ]
 
