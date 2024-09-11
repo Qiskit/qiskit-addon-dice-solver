@@ -273,13 +273,13 @@ def _write_input_files(
     up_addr, dn_addr = addresses
     bytes_up = _address_list_to_bytes(up_addr)
     bytes_dn = _address_list_to_bytes(dn_addr)
-    file1 = open(os.path.join(working_dir, "AlphaDets.bin"), "wb")
+    file1 = open(os.path.join(working_dir, "AlphaDets.bin"), "wb")  # type: ignore
     for bytestring in bytes_up:
-        file1.write(bytestring)
+        file1.write(bytestring)  # type: ignore
     file1.close()
-    file1 = open(os.path.join(working_dir, "BetaDets.bin"), "wb")
+    file1 = open(os.path.join(working_dir, "BetaDets.bin"), "wb")  # type: ignore
     for bytestring in bytes_dn:
-        file1.write(bytestring)
+        file1.write(bytestring)  # type: ignore
     file1.close()
 
 
