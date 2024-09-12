@@ -4,7 +4,8 @@ Qiskit addon: Dice eigensolver
 
 Qiskit addons are a collection of modular tools for building utility-scale workloads powered by Qiskit.
 
-This package contains the Qiskit addon for a `Dice-based eigensolver <https://sanshar.github.io/Dice/overview.html>`_ [1-2] which can be used to scale `sample-based quantum diagonalization (SQD) <https://qiskit.github.io/qiskit-addon-sqd/>`_ [3] workflows past 30 orbitals. No ``Dice`` executable is included in this package, but a build script is provided to assist users in properly setting up the package for installation.
+This package contains a `Dice-based eigensolver [1-2] <https://sanshar.github.io/Dice/overview.html>`_ which can be used to scale sample-based quantum diagonalization (SQD) [3] chemistry workflows past 30 orbitals. It is designed as a plugin to the `SQD Qiskit addon <https://qiskit.github.io/qiskit-addon-sqd/>`_. No ``Dice`` executable is included in this package, but a build script is provided to assist users in properly setting up the package for installation. For an example of integrating ``qiskit-addon-dice-solver`` into SQD workflows, check out the `how-to <https://qiskit.github.io/qiskit-addon-sqd/how_tos/integrate_dice_solver.html>`_.
+
 This package uses the ``Dice`` command line application to perform the Davidson diagonalization method, which allows for diagonalization of systems of 30+ orbitals. The ``Dice`` application is designed to perform semistochastic heat-bath configuration interaction (SHCI) calculations which involves more than a single run of Davidson's method; however, this package restricts the inputs to ``Dice`` such that it is used only to perform a single diagonalization routine in the subspace defined by the input determinants.
 
 We acknowledge Sandeep Sharma's support, suggestions, and conversations which made this package possible.
