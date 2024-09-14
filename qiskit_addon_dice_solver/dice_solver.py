@@ -54,7 +54,7 @@ def solve_dice(
     active_space_path: str | Path,
     working_dir: str | Path,
     spin_sq: float = 0.0,
-    max_davidson: int = 100,
+    maxiter: int = 10,
     clean_working_dir: bool = True,
     mpirun_options: Sequence[str] | str | None = None,
 ) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
@@ -95,7 +95,7 @@ def solve_dice(
             `Knowles and Handy 1989 <https://www.sciencedirect.com/science/article/abs/pii/0010465589900337?via%3Dihub>`_.
         working_dir: An absolute path to a directory in which intermediate files can be written to and read from.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
-        max_davidson: The maximum number of cycles of Davidson's method to perform.
+        maxiter: The maximum number of HCI iterations to perform.
         clean_working_dir: A flag indicating whether to remove the intermediate files used by the ``Dice``
             command line application. If ``False``, the intermediate files will be left in a temporary directory in the
             ``working_dir``.
@@ -125,7 +125,7 @@ def solve_dice(
         num_configurations,
         intermediate_dir,
         spin_sq,
-        max_davidson,
+        maxiter,
     )
 
     # Navigate to working dir and call Dice
@@ -213,7 +213,7 @@ def _write_input_files(
     num_configurations: int,
     working_dir: str | Path,
     spin_sq: float,
-    max_davidson: int,
+    maxiter: int,
 ) -> None:
     """Prepare the Dice inputs in the working directory."""
     ### Move the FCI Dump to working dir ###
@@ -235,8 +235,8 @@ def _write_input_files(
     davidson_tol = "davidsonTol 1e-5\n"
     # Energy floating point tolerance
     de = "dE 1e-10\n"
-    # The number of davidson cycles to perform during SHCI
-    maxiter = f"maxiter {max_davidson}\n"
+    # The maximum number of HCI iterations to perform
+    maxiter = f"maxiter {maxiter}\n"
     # We don't want Dice to be noisyu for now so we hard code noio
     noio = "noio\n"
     # The number of determinants to write as output. We always want all of them.
