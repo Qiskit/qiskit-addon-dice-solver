@@ -14,16 +14,15 @@
 from __future__ import annotations
 
 import os
-import tempfile
+import shutil
 import struct
 import subprocess
-import shutil
-from pathlib import Path
+import tempfile
 from collections.abc import Sequence
+from pathlib import Path
 
 import numpy as np
 from pyscf import tools
-
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -54,6 +53,7 @@ def solve_dice(
     active_space_path: str | Path,
     working_dir: str | Path,
     spin_sq: float = 0.0,
+    *,
     maxiter: int = 10,
     clean_working_dir: bool = True,
     mpirun_options: Sequence[str] | str | None = None,
