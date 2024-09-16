@@ -1,6 +1,5 @@
 *.egg-info/
 .ipynb_checkpoints/
-dice_solver/bin/
 *__pycache__
 external/
 build/
