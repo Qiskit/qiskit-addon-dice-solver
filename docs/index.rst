@@ -2,7 +2,7 @@
 Qiskit addon: Dice eigensolver
 ##############################
 
-Qiskit addons are a collection of modular tools for building utility-scale workloads powered by Qiskit.
+`Qiskit addons <https://docs.quantum.ibm.com/guides/addons>`_ are a collection of modular tools for building utility-scale workloads powered by Qiskit.
 
 This package contains a `Dice-based eigensolver [1-2] <https://sanshar.github.io/Dice/overview.html>`_ that can be used to scale sample-based quantum diagonalization (SQD) [3] chemistry workflows past 30 orbitals. It is designed as a plugin to the `SQD Qiskit addon <https://qiskit.github.io/qiskit-addon-sqd/>`_. No ``Dice`` executable is included in this package, but a build script is provided to assist users in properly setting up the package for installation. For an example of integrating ``qiskit-addon-dice-solver`` into SQD workflows, check out the `how-to <https://qiskit.github.io/qiskit-addon-sqd/how_tos/integrate_dice_solver.html>`_.
 
