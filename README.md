@@ -16,7 +16,7 @@
 
 ### About
 
-Qiskit addons are a collection of modular tools for building utility-scale workloads powered by Qiskit.
+[Qiskit addons](https://docs.quantum.ibm.com/guides/addons) are a collection of modular tools for building utility-scale workloads powered by Qiskit.
 
 This package contains the Qiskit addon for a [Dice-based eigensolver](https://sanshar.github.io/Dice/overview.html) [[1-2]](#references) which can be used to scale sample-based quantum diagonalization (SQD) [[3]](#references) chemistry workflows past 30 orbitals. No ``Dice`` executable is included in this package, but a build script is provided to assist users in properly setting up the package for installation.
 
