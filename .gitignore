@@ -1,13 +1,8 @@
 *.egg-info/
 .ipynb_checkpoints/
-dice_solver/bin/
 *__pycache__
-external/boost_1_85_0/b2
-external/boost_1_85_0/bin.v2/
-external/boost_1_85_0/project-config.jam*
-external/boost_1_85_0/stage/*
-external/boost_1_85_0/tools/build/src/engine/b2
-external/Dice/bin
+external/
 build/
 envs/
 test/dice_solver_logfile.log
+qiskit_addon_dice_solver/bin/
