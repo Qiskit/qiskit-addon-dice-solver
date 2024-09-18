@@ -236,7 +236,7 @@ def _write_input_files(
     # Energy floating point tolerance
     de = "dE 1e-10\n"
     # The maximum number of HCI iterations to perform
-    maxiter_str = f"max_iter {max_iter}\n"
+    maxiter = f"maxiter {max_iter}\n"
     # We don't want Dice to be noisyu for now so we hard code noio
     noio = "noio\n"
     # The number of determinants to write as output. We always want all of them.
@@ -257,7 +257,7 @@ def _write_input_files(
         schedule,
         davidson_tol,
         de,
-        maxiter_str,
+        maxiter,
         noio,
         write_best_determinants,
         n_pt_iter,
