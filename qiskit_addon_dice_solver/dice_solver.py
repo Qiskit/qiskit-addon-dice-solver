@@ -354,12 +354,8 @@ def _addresses_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
         bitstring = _bitstring_from_occupancy_str(occ)
         bitstring_a = bitstring[:norb]
         bitstring_b = bitstring[norb:]
-        address_a = int(
-            np.array2string(np.flip(bitstring_a.astype("int")), separator="")[1:-1], 2
-        )
-        address_b = int(
-            np.array2string(np.flip(bitstring_b.astype("int")), separator="")[1:-1], 2
-        )
+        address_a = sum(b << i for i, b in enumerate(bitstring_a))
+        address_b = sum(b << i for i, b in enumerate(bitstring_b))
         address = [address_a, address_b]
         addresses.append(address)
 
