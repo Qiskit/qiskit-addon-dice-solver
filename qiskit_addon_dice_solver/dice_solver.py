@@ -370,12 +370,16 @@ def _construct_ci_vec_from_addresses_amplitudes(
     num_dets = len(uniques)
     ci_vec = np.zeros((num_dets, num_dets))
 
+    addr_map = {}
+    for i, uni_addr = enumerate(uniques):
+        addr_map[uni_addr] = i
+
     for idx, address in enumerate(addresses):
         address_a = address[0]
         address_b = address[1]
 
-        i = np.where(uniques == address_a)[0][0]
-        j = np.where(uniques == address_b)[0][0]
+        i = addr_map[address_a]
+        j = addr_map[address_b]
         ci_vec[i, j] = amps[idx]
 
     return ci_vec
