@@ -333,7 +333,7 @@ def _read_wave_function_magnitudes(
 def _bitstring_from_occupancy_str(occupancy_str: str) -> np.ndarray:
     """Convert an occupancy string into a bit array."""
     norb = len(occupancy_str)
-    bitstring = np.zeros(2 * norb)
+    bitstring = np.zeros(2 * norb, dtype=bool)
     for i in range(len(occupancy_str)):
         if occupancy_str[i] == "2":
             bitstring[i] = 1
