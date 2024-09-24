@@ -190,17 +190,17 @@ def _call_dice(working_dir: Path, mpirun_options: Sequence[str] | str | None) ->
     else:
         dice_call = ["mpirun", dice_path]
 
-    try:
-        with open(dice_log_path, "w") as logfile:
+    with open(dice_log_path, "w") as logfile:
+        try:
             subprocess.run(
                 dice_call, cwd=working_dir, stdout=logfile, stderr=logfile, check=True
             )
-    except subprocess.CalledProcessError as e:
-        raise DiceExecutionError(
-            command=dice_call,
-            returncode=e.returncode,
-            log_path=dice_log_path,
-        ) from e
+        except subprocess.CalledProcessError as e:
+            raise DiceExecutionError(
+                command=dice_call,
+                returncode=e.returncode,
+                log_path=dice_log_path,
+            ) from e
 
 
 def _write_input_files(
