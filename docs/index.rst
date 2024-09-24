@@ -35,7 +35,14 @@ First, install some required libraries:
 
    sudo apt install build-essential libboost-all-dev libopenmpi-dev openmpi-bin libhdf5-openmpi-dev
 
-To build the binaries required for this package:
+Next, install from the most recent stable branch. Users who want to install from the `main` branch should
+note that the hosted documentation may not accurately reflect the state of the API in the `main` branch.
+
+.. code-block:: bash
+
+   git checkout stable/X.Y
+
+Build the boost and Dice binaries required for this package:
 
 .. code-block:: bash
 
