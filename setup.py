@@ -30,6 +30,7 @@ setup(
             "sphinx-design",
             "sphinx-autodoc-typehints",
             "sphinx-copybutton",
+            "reno",
         ],
         "style": [
             "ruff==0.6.4",
@@ -38,6 +39,7 @@ setup(
             "mypy==1.11.2",
             "pylint>=3.2.7",
             "pydocstyle==6.3",
+            "reno",
         ],
     },
 )

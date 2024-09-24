@@ -103,3 +103,4 @@ References
    Documentation Home <self>
    API Reference <apidocs/qiskit_addon_dice_solver>
    GitHub <https://github.com/Qiskit/qiskit-addon-dice-solver>
+   Release Notes <release-notes>
