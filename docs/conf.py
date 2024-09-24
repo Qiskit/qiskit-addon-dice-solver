@@ -56,6 +56,7 @@ extensions = [
     "sphinx.ext.linkcode",
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
+    "reno.sphinxext",
     "qiskit_sphinx_theme",
 ]
 
