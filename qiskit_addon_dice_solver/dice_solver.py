@@ -200,7 +200,7 @@ def _call_dice(working_dir: Path, mpirun_options: Sequence[str] | str | None) ->
             command=dice_call,
             returncode=e.returncode,
             log_path=dice_log_path,
-        )
+        ) from e
 
 
 def _write_input_files(
