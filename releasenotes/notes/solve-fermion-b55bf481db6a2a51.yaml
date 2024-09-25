@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Introduced a new function, :func:`qiskit_addon_dice_solver.solve_fermion`, which is intended to be compatible with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>` workflows.

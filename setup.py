@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     package_data={"dice_solver": ["bin/Dice", "bin/*.so*"]},
     include_package_data=True,
-    install_requires=["numpy", "pyscf"],
+    install_requires=["numpy", "pyscf", "qiskit-addon-sqd>=0.6"],
     extras_require={
         "dev": ["tox>=4.0", "pytest>=8.0"],
         "docs": [

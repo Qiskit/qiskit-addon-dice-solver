@@ -21,11 +21,13 @@ Functions
    :toctree: ../stubs/
    :nosignatures:
 
+   solve_fermion
    solve_dice
 """
 
-from .dice_solver import solve_dice
+from .dice_solver import solve_fermion, solve_dice
 
 __all__ = [
+    "solve_fermion",
     "solve_dice",
 ]
