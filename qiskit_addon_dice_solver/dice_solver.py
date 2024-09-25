@@ -85,7 +85,7 @@ def solve_fermion(
 
     .. note::
 
-       Determinant are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
+       Determinants are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
        of ``40`` or fewer orbitals are supported.
 
     Args:
@@ -149,7 +149,7 @@ def solve_fermion(
     # Navigate to dice dir and call Dice
     _call_dice(dice_dir, mpirun_options)
 
-    # Read outputs and convert outputs
+    # Read and convert outputs
     e_dice, sci_coefficients, avg_occupancies = _read_dice_outputs(
         dice_dir, num_orbitals
     )
