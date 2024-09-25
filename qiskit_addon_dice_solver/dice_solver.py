@@ -121,15 +121,15 @@ def solve_fermion(
     # Convert bitstring matrix to integer determinants for spin-up/down
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
     num_configurations = len(ci_strs[0])
-    num_up = bin(ci_strs[0][0])[2:].count("1")
-    num_dn = bin(ci_strs[1][0])[2:].count("1")
+    num_up = format(ci_strs[0][0], "b").count("1")
+    num_dn = format(ci_strs[1][0], "b").count("1")
 
     # Set up the temp directory
     temp_dir = temp_dir or tempfile.gettempdir()
     dice_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=temp_dir))
 
     # Write the integrals out as an FCI dump for Dice command line app
-    active_space_path = os.path.join(dice_dir, "fcidump.txt")
+    active_space_path = dice_dir / "fcidump.txt"
     num_orbitals = hcore.shape[0]
     tools.fcidump.from_integrals(
         active_space_path, hcore, eri, num_orbitals, (num_up + num_dn)
