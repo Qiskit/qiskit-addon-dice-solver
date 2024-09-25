@@ -121,8 +121,8 @@ def solve_fermion(
     # Convert bitstring matrix to integer determinants for spin-up/down
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
     num_configurations = len(ci_strs[0])
-    num_up = bin(ci_strs[0][0])[2:].count("1")
-    num_dn = bin(ci_strs[1][0])[2:].count("1")
+    num_up = format(ci_strs[0][0], "b").count("1")
+    num_dn = format(ci_strs[1][0], "b").count("1")
 
     # Set up the temp directory
     temp_dir = temp_dir or tempfile.gettempdir()
