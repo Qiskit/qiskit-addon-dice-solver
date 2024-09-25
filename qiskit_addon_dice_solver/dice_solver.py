@@ -33,18 +33,15 @@ os.environ["LD_LIBRARY_PATH"] = f"{DICE_BIN}:{os.environ.get('LD_LIBRARY_PATH', 
 class DiceExecutionError(Exception):
     """Custom exception for Dice command line application execution errors."""
 
-    def __init__(self, command, returncode, output, stderr, working_dir):
+    def __init__(self, command, returncode, log_path):
         """Initialize a ``DiceExecutionError`` instance."""
         self.command = command
         self.returncode = returncode
-        self.output = output
-        self.stderr = stderr
-        self.working_dir = working_dir
+        self.log_path = log_path
+
         message = (
             f"Command '{command}' failed with return code {returncode}\n"
-            f"Working directory: {working_dir}\n"
-            f"Output: {output}\n"
-            f"Error: {stderr}"
+            f"See the log file at {log_path} for more details."
         )
         super().__init__(message)
 
@@ -193,17 +190,17 @@ def _call_dice(working_dir: Path, mpirun_options: Sequence[str] | str | None) ->
     else:
         dice_call = ["mpirun", dice_path]
 
-    try:
-        with open(dice_log_path, "w") as logfile:
-            subprocess.run(dice_call, cwd=working_dir, stdout=logfile, stderr=logfile)
-    except subprocess.CalledProcessError as e:
-        raise DiceExecutionError(
-            command=dice_call,
-            returncode=e.returncode,
-            output=e.stdout,
-            stderr=e.stderr,
-            working_dir=working_dir,
-        ) from e
+    with open(dice_log_path, "w") as logfile:
+        try:
+            subprocess.run(
+                dice_call, cwd=working_dir, stdout=logfile, stderr=logfile, check=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise DiceExecutionError(
+                command=dice_call,
+                returncode=e.returncode,
+                log_path=dice_log_path,
+            ) from e
 
 
 def _write_input_files(
