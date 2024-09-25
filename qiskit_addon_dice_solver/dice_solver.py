@@ -302,7 +302,7 @@ def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> No
     dice_log_path = os.path.join(dice_dir, "dice_solver_logfile.log")
     if mpirun_options:
         if isinstance(mpirun_options, str):
-            mpirun_options = [mpirun_options]
+            mpirun_options = mpirun_options.split()
         dice_call = ["mpirun"] + list(mpirun_options) + [dice_path]
     else:
         dice_call = ["mpirun", dice_path]
