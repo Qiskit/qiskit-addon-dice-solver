@@ -302,22 +302,25 @@ def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> No
     dice_log_path = os.path.join(dice_dir, "dice_solver_logfile.log")
     if mpirun_options:
         if isinstance(mpirun_options, str):
-            mpirun_options = [mpirun_options]
+            mpirun_options = mpirun_options.split()
         dice_call = ["mpirun"] + list(mpirun_options) + [dice_path]
     else:
         dice_call = ["mpirun", dice_path]
 
     with open(dice_log_path, "w") as logfile:
-        try:
-            subprocess.run(
-                dice_call, cwd=dice_dir, stdout=logfile, stderr=logfile, check=True
-            )
-        except subprocess.CalledProcessError as e:
-            raise DiceExecutionError(
-                command=dice_call,
-                returncode=e.returncode,
-                log_path=dice_log_path,
-            ) from e
+        process = subprocess.run(
+            dice_call, cwd=dice_dir, stdout=logfile, stderr=logfile
+        )
+    rdm_path = dice_dir / "spin1RDM.0.0.txt"
+    # We check this manually because Dice is returning non-zero codes on successful executions,
+    # so we can't rely on the status code to tell us whether Dice executed succesfully. Unclear
+    # if this only happens on Dice/Riken branch.
+    if not os.path.exists(rdm_path):
+        raise DiceExecutionError(
+            command=dice_call,
+            returncode=process.returncode,
+            log_path=dice_log_path,
+        )
 
 
 def _write_input_files(
@@ -331,9 +334,10 @@ def _write_input_files(
     max_iter: int,
 ) -> None:
     """Prepare the Dice inputs in the specified directory."""
-    ### Move the FCI Dump to dice dir ###
-    shutil.copy(active_space_path, os.path.join(dice_dir, "fcidump.txt"))
-
+    ### Move the FCI Dump to dice dir if it's not already there. ###
+    dice_fci_path = Path(dice_dir) / "fcidump.txt"
+    if not os.path.exists(dice_fci_path):
+        shutil.copy(active_space_path, dice_fci_path)
     ### Write the input.dat ###
     num_elec = num_up + num_dn
     # Return only the lowest-energy state

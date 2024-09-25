@@ -15,14 +15,11 @@ import os
 from pyscf import ao2mo, tools
 import numpy as np
 
-from sqd.utils.counts import generate_counts_uniform, counts_to_arrays
-from sqd.configuration_recovery import recover_configurations
-from qiskit_addon_dice_solver import solve_dice
-from sqd.subsampling import postselect_and_subsample
-from sqd.utils.fermion import (
-    bitstring_matrix_to_sorted_addresses,
-    flip_orbital_occupancies,
-)
+from qiskit_addon_sqd.counts import generate_counts_uniform, counts_to_arrays
+from qiskit_addon_sqd.configuration_recovery import recover_configurations
+from qiskit_addon_sqd.subsampling import postselect_and_subsample
+from qiskit_addon_sqd.fermion import flip_orbital_occupancies
+from qiskit_addon_dice_solver import solve_fermion
 
 
 # Specify molecule properties
@@ -77,35 +74,28 @@ for i in range(iterations):
             occupancies_bitwise,
             num_elec_a,
             num_elec_b,
-            # rand_seed=rand_seed,
         )
 
     # Throw out samples with incorrect hamming weight and create batches of subsamples.
     batches = postselect_and_subsample(
         bs_mat_tmp,
         probs_arr_tmp,
-        num_elec_a,
-        num_elec_b,
-        samples_per_batch,
-        n_batches,
-        # rand_seed=rand_seed,
+        hamming_right=num_elec_a,
+        hamming_left=num_elec_b,
+        samples_per_batch=samples_per_batch,
+        num_batches=n_batches,
     )
     # Run eigenstate solvers in a loop. This loop should be parallelized for larger problems.
     int_e = np.zeros(n_batches)
     int_occs = np.zeros((n_batches, 2 * num_orbitals))
-    for j in range(n_batches):
-        addresses = bitstring_matrix_to_sorted_addresses(
-            batches[j], open_shell=open_shell
+    for j, batch in enumerate(batches):
+        energy_sci, wf_mags, avg_occs = solve_fermion(
+            batch,
+            hcore,
+            eri,
+            mpirun_options=["-quiet", "-n", "8"],
         )
-        energy_sci, wf_mags, avg_occs = solve_dice(
-            addresses,
-            active_space_path,
-            os.path.abspath(os.path.dirname(__file__)),
-            spin_sq=spin_sq,
-            max_davidson=max_davidson_cycles,
-            clean_working_dir=True,
-            mpirun_options=["-n", "8"],
-        )
+        energy_sci += nuclear_repulsion_energy
         int_e[j] = energy_sci
         int_occs[j, :num_orbitals] = avg_occs[0]
         int_occs[j, num_orbitals:] = avg_occs[1]
@@ -119,4 +109,4 @@ for i in range(iterations):
     e_hist[i, :] = int_e
 
 print(f"Exact energy: -109.10288938")
-print(f"Estimated energy: {np.min(e_hist[-1]) + nuclear_repulsion_energy}")
+print(f"Estimated energy: {np.min(e_hist[-1])}")
