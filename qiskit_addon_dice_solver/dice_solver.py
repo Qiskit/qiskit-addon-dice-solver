@@ -24,6 +24,7 @@ from pathlib import Path
 
 import numpy as np
 from pyscf import tools
+from qiskit_addon_sqd.fermion import bitstring_matrix_to_ci_strs
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -44,6 +45,121 @@ class DiceExecutionError(Exception):
             f"See the log file at {log_path} for more details."
         )
         super().__init__(message)
+
+
+def solve_fermion(
+    bitstring_matrix: np.ndarray,
+    /,
+    hcore: np.ndarray,
+    eri: np.ndarray,
+    *,
+    mpirun_options: Sequence[str] | str | None = None,
+    working_dir: str | Path | None = None,
+    spin_sq: float = 0.0,
+    clean_working_dir: bool = True,
+) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    """
+    Approximate the ground state given one- and two-body integrals and a bitstring matrix.
+
+    This solver is designed for compatibility with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>`_ workflows.
+
+    In order to leverage the multi-processing nature of this tool, the user must specify
+    the CPU resources to use via the `mpirun_options` argument.
+
+    For example, to use 8 CPU slots in parallel in quiet mode:
+
+    .. code-block:: python
+
+       # Run 8 parallel slots in quiet mode
+       mpirun_opts = "-quiet -n 8"
+       # OR
+       mpirun_opts = ["-quiet", "-n", "8"]
+
+       energy, sci_coeffs, avg_occs = solve_fermion(..., mpirun_options=mpirun_opts)
+
+    For more information on the ``mpirun`` command line options, refer to the `man page <https://www.open-mpi.org/doc/current/man1/mpirun.1.php>`_.
+
+    .. note::
+
+       Only closed-shell systems are supported. The particle number for both
+       spin-up and spin-down determinants is expected to be equal.
+
+    .. note::
+
+       Determinant are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
+       of ``40`` or fewer orbitals are supported.
+
+    Args:
+        bitstring_matrix: A set of configurations defining the subspace onto which the Hamiltonian
+            will be projected and diagonalized. This is a 2D array of ``bool`` representations of bit
+            values such that each row represents a single bitstring. The spin-up configurations
+            should be specified by column indices in range ``(N, N/2]``, and the spin-down
+            configurations should be specified by column indices in range ``(N/2, 0]``, where ``N``
+            is the number of qubits.
+        hcore: Core Hamiltonian matrix representing single-electron integrals
+        eri: Electronic repulsion integrals representing two-electron integrals
+        mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
+            These command-line options will be passed directly to the ``mpirun`` command line application during
+            invocation of ``Dice``. These may be formatted as a ``Sequence`` of strings or a single string. If a ``Sequence``,
+            the elements will be combined into a single, space-delimited string and passed to
+            ``mpirun``. If the input is a single string, it will be passed to ``mpirun`` as-is. If no
+            ``mpirun_options`` are provided by the user, ``Dice`` will run on a single MPI slot. For more
+            information on the ``mpirun`` command line options, refer to the `man page <https://www.open-mpi.org/doc/current/man1/mpirun.1.php>`_.
+        working_dir: An absolute path to a directory in which intermediate files can be written to and read from. If
+            no working directory is provided, one will be created using Python's ``tempfile`` module.
+        spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        clean_working_dir: A flag indicating whether to remove the intermediate files used by the ``Dice``
+            command line application. If ``False``, the intermediate files will be left in a temporary directory in the
+            ``working_dir``.
+
+    Returns:
+        Minimum energy from SCI calculation, SCI coefficients, and average orbital occupancy for spin-up and spin-down orbitals
+    """
+    # Convert bitstring matrix to integer determinants for spin-up/down
+    ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
+    num_configurations = len(ci_strs[0])
+    num_up = bin(ci_strs[0][0])[2:].count("1")
+    num_dn = bin(ci_strs[1][0])[2:].count("1")
+
+    # Set up the working directory
+    working_dir = working_dir or tempfile.gettempdir()
+    intermediate_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=working_dir))
+
+    # Write the integrals out as an FCI dump for Dice command line app
+    active_space_path = os.path.join(intermediate_dir, "fcidump.txt")
+    num_orbitals = hcore.shape[0]
+    tools.fcidump.from_integrals(
+        active_space_path, hcore, eri, num_orbitals, (num_up + num_dn)
+    )
+
+    _write_input_files(
+        ci_strs,
+        active_space_path,
+        num_up,
+        num_dn,
+        num_configurations,
+        intermediate_dir,
+        spin_sq,
+        1,
+    )
+
+    # Navigate to working dir and call Dice
+    _call_dice(intermediate_dir, mpirun_options)
+
+    # Read outputs and convert outputs
+    e_dice, sci_coefficients, avg_occupancies = _read_dice_outputs(
+        intermediate_dir, num_orbitals
+    )
+
+    # Clean up the working directory of intermediate files, if desired
+    if clean_working_dir:
+        shutil.rmtree(intermediate_dir)
+
+    return (
+        e_dice,
+        sci_coefficients,
+        (avg_occupancies[:num_orbitals], avg_occupancies[num_orbitals:]),
+    )
 
 
 def solve_dice(
