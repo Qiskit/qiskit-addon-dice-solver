@@ -334,6 +334,10 @@ def _write_input_files(
     max_iter: int,
 ) -> None:
     """Prepare the Dice inputs in the specified directory."""
+    ### Move the FCI Dump to dice dir if it's not already there. ###
+    dice_fci_path = dice_dir / "fcidump.txt"
+    if not os.path.exists(dice_fci_path):
+        shutil.copy(active_space_path, dice_fci_path)
     ### Write the input.dat ###
     num_elec = num_up + num_dn
     # Return only the lowest-energy state
