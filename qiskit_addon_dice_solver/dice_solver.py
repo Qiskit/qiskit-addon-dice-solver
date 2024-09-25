@@ -129,7 +129,7 @@ def solve_fermion(
     intermediate_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=temp_dir))
 
     # Write the integrals out as an FCI dump for Dice command line app
-    active_space_path = os.path.join(intermediate_dir, "fcidump.txt")
+    active_space_path = intermediate_dir / "fcidump.txt"
     num_orbitals = hcore.shape[0]
     tools.fcidump.from_integrals(
         active_space_path, hcore, eri, num_orbitals, (num_up + num_dn)
