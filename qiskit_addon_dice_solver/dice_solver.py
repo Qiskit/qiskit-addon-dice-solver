@@ -105,7 +105,7 @@ def solve_fermion(
             ``mpirun_options`` are provided by the user, ``Dice`` will run on a single MPI slot. For more
             information on the ``mpirun`` command line options, refer to the `man page <https://www.open-mpi.org/doc/current/man1/mpirun.1.php>`_.
         working_dir: An absolute path to a directory in which intermediate files can be written to and read from. If
-            no working directory is provided, one will be created using Python's ``tempfile`` module.
+            no working directory is provided, the system temporary files directory will be used.
         clean_working_dir: A flag indicating whether to remove the intermediate files used by the ``Dice``
             command line application. If ``False``, the intermediate files will be left in a temporary directory in the
             ``working_dir``.
