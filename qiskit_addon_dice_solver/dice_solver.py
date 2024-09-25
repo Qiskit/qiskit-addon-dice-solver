@@ -335,7 +335,7 @@ def _write_input_files(
 ) -> None:
     """Prepare the Dice inputs in the specified directory."""
     ### Move the FCI Dump to dice dir if it's not already there. ###
-    dice_fci_path = dice_dir / "fcidump.txt"
+    dice_fci_path = Path(dice_dir) / "fcidump.txt"
     if not os.path.exists(dice_fci_path):
         shutil.copy(active_space_path, dice_fci_path)
     ### Write the input.dat ###
