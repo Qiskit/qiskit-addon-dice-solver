@@ -55,7 +55,6 @@ def solve_fermion(
     *,
     mpirun_options: Sequence[str] | str | None = None,
     working_dir: str | Path | None = None,
-    spin_sq: float = 0.0,
     clean_working_dir: bool = True,
 ) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
     """
@@ -107,14 +106,18 @@ def solve_fermion(
             information on the ``mpirun`` command line options, refer to the `man page <https://www.open-mpi.org/doc/current/man1/mpirun.1.php>`_.
         working_dir: An absolute path to a directory in which intermediate files can be written to and read from. If
             no working directory is provided, one will be created using Python's ``tempfile`` module.
-        spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
         clean_working_dir: A flag indicating whether to remove the intermediate files used by the ``Dice``
             command line application. If ``False``, the intermediate files will be left in a temporary directory in the
             ``working_dir``.
 
     Returns:
-        Minimum energy from SCI calculation, SCI coefficients, and average orbital occupancy for spin-up and spin-down orbitals
+        - Minimum energy from SCI calculation
+        - SCI coefficients
+        - Average orbital occupancy
     """
+    # Hard-code target S^2 until supported
+    spin_sq = 0.0
+
     # Convert bitstring matrix to integer determinants for spin-up/down
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
     num_configurations = len(ci_strs[0])
