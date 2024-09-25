@@ -58,7 +58,7 @@ def solve_fermion(
     clean_working_dir: bool = True,
 ) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
     """
-    Approximate the ground state given one- and two-body integrals and a bitstring matrix.
+    Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
     This solver is designed for compatibility with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>`_ workflows.
 
