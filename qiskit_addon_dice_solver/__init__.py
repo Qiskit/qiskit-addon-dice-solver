@@ -25,9 +25,10 @@ Functions
    solve_dice
 """
 
-from .dice_solver import solve_fermion, solve_dice
+from .dice_solver import solve_dice, solve_fermion, solve_hci
 
 __all__ = [
-    "solve_fermion",
     "solve_dice",
+    "solve_fermion",
+    "solve_hci",
 ]
