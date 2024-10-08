@@ -128,7 +128,7 @@ def solve_hci(
 
     if ci_strs is None:
         # If CI strings not specified, use the Hartree-Fock bitstring
-        ci_strs = (np.array([(1 << n_alpha) - 1]), np.array([(1 << n_beta) - 1]))
+        ci_strs = ([(1 << n_alpha) - 1], [(1 << n_beta) - 1])
 
     # Set up the temp directory
     temp_dir = temp_dir or tempfile.gettempdir()
