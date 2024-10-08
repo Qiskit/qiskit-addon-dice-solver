@@ -119,6 +119,7 @@ def solve_hci(
     Returns:
         - Minimum energy from SCI calculation
         - SCI coefficients
+        - SCI strings
         - Average orbital occupancy
     """
     n_alpha, n_beta = nelec
@@ -152,7 +153,9 @@ def solve_hci(
     _call_dice(dice_dir, mpirun_options)
 
     # Read and convert outputs
-    e_dice, sci_coefficients, avg_occupancies = _read_dice_outputs(dice_dir, norb)
+    e_dice, sci_coefficients, addresses, avg_occupancies = _read_dice_outputs(
+        dice_dir, norb
+    )
 
     # Clean up the temp directory of intermediate files, if desired
     if clean_temp_dir:
@@ -161,6 +164,7 @@ def solve_hci(
     return (
         e_dice,
         sci_coefficients,
+        addresses,
         (avg_occupancies[:norb], avg_occupancies[norb:]),
     )
 
@@ -236,7 +240,7 @@ def solve_fermion(
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
-    return solve_hci(
+    e_dice, sci_coefficients, _, avg_occupancies = solve_hci(
         hcore=hcore,
         eri=eri,
         norb=hcore.shape[0],
@@ -250,6 +254,7 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
+    return e_dice, sci_coefficients, avg_occupancies
 
 
 def solve_dice(
@@ -339,7 +344,7 @@ def solve_dice(
     _call_dice(intermediate_dir, mpirun_options)
 
     # Read outputs and convert outputs
-    e_dice, sci_coefficients, avg_occupancies = _read_dice_outputs(
+    e_dice, sci_coefficients, _, avg_occupancies = _read_dice_outputs(
         intermediate_dir, num_orbitals
     )
     e_dice -= mf_as.mol.energy_nuc()
@@ -378,9 +383,11 @@ def _read_dice_outputs(
     # Construct the SCI wavefunction coefficients from Dice output dets.bin
     occs, amps = _read_wave_function_magnitudes(os.path.join(dice_dir, "dets.bin"))
     addresses = _addresses_from_occupancies(occs)
-    sci_coefficients = _construct_ci_vec_from_addresses_amplitudes(amps, addresses)
+    sci_coefficients, addresses_a, addresses_b = (
+        _construct_ci_vec_from_addresses_amplitudes(amps, addresses)
+    )
 
-    return energy_dice, sci_coefficients, avg_occupancies
+    return energy_dice, sci_coefficients, (addresses_a, addresses_b), avg_occupancies
 
 
 def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> None:
@@ -578,6 +585,8 @@ def _construct_ci_vec_from_addresses_amplitudes(
     uniques = np.unique(np.array(addresses))
     num_dets = len(uniques)
     ci_vec = np.zeros((num_dets, num_dets))
+    addresses_a = np.zeros(num_dets, dtype=np.int64)
+    addresses_b = np.zeros(num_dets, dtype=np.int64)
 
     addr_map = {uni_addr: i for i, uni_addr in enumerate(uniques)}
 
@@ -589,4 +598,7 @@ def _construct_ci_vec_from_addresses_amplitudes(
         j = addr_map[address_b]
         ci_vec[i, j] = amps[idx]
 
-    return ci_vec
+        addresses_a[i] = uniques[i]
+        addresses_b[j] = uniques[j]
+
+    return ci_vec, addresses_a, addresses_b
