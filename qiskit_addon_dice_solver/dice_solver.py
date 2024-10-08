@@ -62,7 +62,9 @@ def solve_hci(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
+) -> tuple[
+    float, np.ndarray, tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]
+]:
     """
     Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
@@ -362,7 +364,7 @@ def solve_dice(
 
 def _read_dice_outputs(
     dice_dir: str | Path, num_orbitals: int
-) -> tuple[float, np.ndarray, np.ndarray]:
+) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray], np.ndarray]:
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
     # Read in the avg orbital occupancies
     spin1_rdm_dice = np.loadtxt(os.path.join(dice_dir, "spin1RDM.0.0.txt"), skiprows=1)
@@ -580,7 +582,7 @@ def _addresses_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
 
 def _construct_ci_vec_from_addresses_amplitudes(
     amps: list[float], addresses: list[list[int]]
-) -> np.ndarray:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Construct wavefunction amplitudes from determinant addresses and their associated amplitudes."""
     uniques = np.unique(np.array(addresses))
     num_dets = len(uniques)
