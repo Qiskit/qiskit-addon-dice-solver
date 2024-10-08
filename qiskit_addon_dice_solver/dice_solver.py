@@ -66,9 +66,7 @@ def solve_hci(
     float, np.ndarray, tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]
 ]:
     """
-    Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
-
-    This solver is designed for compatibility with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>`_ workflows.
+    Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
     In order to leverage the multi-processing nature of this tool, the user must specify
     the CPU resources to use via the `mpirun_options` argument.
@@ -82,7 +80,7 @@ def solve_hci(
        # OR
        mpirun_opts = ["-quiet", "-n", "8"]
 
-       energy, sci_coeffs, avg_occs = solve_fermion(..., mpirun_options=mpirun_opts)
+       energy, sci_coeffs, sci_strings, avg_occs = solve_hci(..., mpirun_options=mpirun_opts)
 
     For more information on the ``mpirun`` command line options, refer to the `man page <https://www.open-mpi.org/doc/current/man1/mpirun.1.php>`_.
 
