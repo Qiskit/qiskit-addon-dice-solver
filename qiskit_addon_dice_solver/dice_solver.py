@@ -99,6 +99,11 @@ def solve_hci(
         eri: Electronic repulsion integrals representing two-electron integrals.
         norb: The number of spatial orbitals.
         nelec: The numbers of spin up and spin down electrons.
+        ci_strs: CI strings specifying the subspace to use at the beginning of the first HCI iteration.
+            Should be specified as a pair of lists, with the first list containing the alpha strings and the
+            second list containing the beta strings. If not specified, only the Hartree-Fock string will be used.
+            A CI string is specified as an integer whose binary expansion encodes the string. For example,
+            the Hartree-Fock string with 3 electrons in 5 orbitals is `0b00111`.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
         select_cutoff: Cutoff threshold for retaining state vector coefficients.
         energy_tol: Energy floating point tolerance.
