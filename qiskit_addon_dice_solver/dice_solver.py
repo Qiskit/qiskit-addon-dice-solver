@@ -595,13 +595,12 @@ def _construct_ci_vec_from_addresses_amplitudes(
 
     addr_map = {uni_addr: i for i, uni_addr in enumerate(uniques)}
 
-    for idx, address in enumerate(addresses):
-        address_a = address[0]
-        address_b = address[1]
-
+    for amp, address in zip(amps, addresses):
+        address_a, address_b = address
         i = addr_map[address_a]
         j = addr_map[address_b]
-        ci_vec[i, j] = amps[idx]
+
+        ci_vec[i, j] = amp
 
         addresses_a[i] = uniques[i]
         addresses_b[j] = uniques[j]
