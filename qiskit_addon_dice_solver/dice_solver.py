@@ -252,7 +252,7 @@ def solve_fermion(
         nelec=(num_up, num_dn),
         ci_strs=ci_strs,
         spin_sq=0.0,  # Hard-code target S^2 until supported
-        select_cutoff=1e12,
+        select_cutoff=1e-12,
         energy_tol=1e-10,
         max_iter=1,
         mpirun_options=mpirun_options,
