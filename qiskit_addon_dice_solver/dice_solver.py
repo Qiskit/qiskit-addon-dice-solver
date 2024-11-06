@@ -62,9 +62,7 @@ def solve_hci(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[
-    float, SCIState, tuple[np.ndarray, np.ndarray]
-]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
     """
     Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
@@ -157,9 +155,7 @@ def solve_hci(
     _call_dice(dice_dir, mpirun_options)
 
     # Read and convert outputs
-    e_dice, sci_state, avg_occupancies = _read_dice_outputs(
-        dice_dir, norb
-    )
+    e_dice, sci_state, avg_occupancies = _read_dice_outputs(dice_dir, norb)
 
     # Clean up the temp directory of intermediate files, if desired
     if clean_temp_dir:
@@ -389,7 +385,9 @@ def _read_dice_outputs(
     sci_coefficients, addresses_a, addresses_b = (
         _construct_ci_vec_from_addresses_amplitudes(amps, addresses)
     )
-    sci_state = SCIState(amplitudes=sci_coefficients, ci_strs_a=addresses_a, ci_strs_b=addresses_b)
+    sci_state = SCIState(
+        amplitudes=sci_coefficients, ci_strs_a=addresses_a, ci_strs_b=addresses_b
+    )
 
     return energy_dice, sci_state, avg_occupancies
 
