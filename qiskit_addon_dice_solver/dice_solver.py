@@ -285,8 +285,8 @@ def _read_dice_outputs(
     # Construct the SCI wavefunction coefficients from Dice output dets.bin
     occs, amps = _read_wave_function_magnitudes(os.path.join(dice_dir, "dets.bin"))
     ci_strs = _ci_strs_from_occupancies(occs)
-    sci_coefficients, ci_strs_a, ci_strs_b = (
-        _construct_ci_vec_from_amplitudes(amps, ci_strs)
+    sci_coefficients, ci_strs_a, ci_strs_b = _construct_ci_vec_from_amplitudes(
+        amps, ci_strs
     )
 
     return energy_dice, sci_coefficients, (ci_strs_a, ci_strs_b), avg_occupancies
