@@ -158,7 +158,7 @@ def solve_hci(
     _call_dice(dice_dir, mpirun_options)
 
     # Read and convert outputs
-    e_dice, sci_coefficients, ci_strs, avg_occupancies = _read_dice_outputs(
+    e_dice, sci_coefficients, sci_strs, avg_occupancies = _read_dice_outputs(
         dice_dir, norb
     )
 
@@ -169,7 +169,7 @@ def solve_hci(
     return (
         e_dice,
         sci_coefficients,
-        ci_strs,
+        sci_strs,
         (avg_occupancies[:norb], avg_occupancies[norb:]),
     )
 
