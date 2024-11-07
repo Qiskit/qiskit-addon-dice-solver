@@ -1,4 +1,0 @@
----
-upgrade:
-  - |
-    ``qiskit_addon_dice_solver.solve_dice`` has been deprecated. :func:`qiskit_addon_dice_solver.solve_fermion` should be used in its place.
