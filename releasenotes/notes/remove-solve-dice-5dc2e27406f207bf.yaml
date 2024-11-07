@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Removed the ``qiskit_addon_dice_solver.solve_dice`` function. Users should call :func:`qiskit_addon_dice_solver.solve_fermion` instead.
