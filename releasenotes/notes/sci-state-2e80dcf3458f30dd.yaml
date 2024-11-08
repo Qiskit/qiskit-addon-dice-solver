@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    :func:`qiskit_addon_dice_solver.solve_hci` and :func:`qiskit_addon_dice_solver.solve_fermion` now return an ``qiskit_addon_sqd.fermion.SCIState`` instance to describe the ground state.

@@ -25,7 +25,7 @@ from pathlib import Path
 
 import numpy as np
 from pyscf import tools
-from qiskit_addon_sqd.fermion import bitstring_matrix_to_ci_strs
+from qiskit_addon_sqd.fermion import bitstring_matrix_to_ci_strs, SCIState
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -62,9 +62,7 @@ def solve_hci(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[
-    float, np.ndarray, tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]
-]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
     """
     Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
@@ -123,8 +121,7 @@ def solve_hci(
 
     Returns:
         - Minimum energy from SCI calculation
-        - SCI coefficients
-        - SCI strings
+        - Approximate ground state from SCI
         - Average orbital occupancy
     """
     n_alpha, n_beta = nelec
@@ -158,9 +155,7 @@ def solve_hci(
     _call_dice(dice_dir, mpirun_options)
 
     # Read and convert outputs
-    e_dice, sci_coefficients, sci_strs, avg_occupancies = _read_dice_outputs(
-        dice_dir, norb
-    )
+    e_dice, sci_state, avg_occupancies = _read_dice_outputs(dice_dir, norb)
 
     # Clean up the temp directory of intermediate files, if desired
     if clean_temp_dir:
@@ -168,8 +163,7 @@ def solve_hci(
 
     return (
         e_dice,
-        sci_coefficients,
-        sci_strs,
+        sci_state,
         (avg_occupancies[:norb], avg_occupancies[norb:]),
     )
 
@@ -183,7 +177,7 @@ def solve_fermion(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray]]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
     """
     Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
@@ -239,13 +233,13 @@ def solve_fermion(
 
     Returns:
         - Minimum energy from SCI calculation
-        - SCI coefficients
+        - Approximate ground state from SCI
         - Average orbital occupancy
     """
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
-    e_dice, sci_coefficients, _, avg_occupancies = solve_hci(
+    e_dice, sci_state, avg_occupancies = solve_hci(
         hcore=hcore,
         eri=eri,
         norb=hcore.shape[0],
@@ -259,12 +253,12 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_coefficients, avg_occupancies
+    return e_dice, sci_state, avg_occupancies
 
 
 def _read_dice_outputs(
     dice_dir: str | Path, num_orbitals: int
-) -> tuple[float, np.ndarray, tuple[np.ndarray, np.ndarray], np.ndarray]:
+) -> tuple[float, SCIState, np.ndarray]:
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
     # Read in the avg orbital occupancies
     spin1_rdm_dice = np.loadtxt(os.path.join(dice_dir, "spin1RDM.0.0.txt"), skiprows=1)
@@ -288,8 +282,11 @@ def _read_dice_outputs(
     sci_coefficients, ci_strs_a, ci_strs_b = _construct_ci_vec_from_amplitudes(
         amps, ci_strs
     )
+    sci_state = SCIState(
+        amplitudes=sci_coefficients, ci_strs_a=ci_strs_a, ci_strs_b=ci_strs_b
+    )
 
-    return energy_dice, sci_coefficients, (ci_strs_a, ci_strs_b), avg_occupancies
+    return energy_dice, sci_state, avg_occupancies
 
 
 def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> None:
