@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added a :func:`qiskit_addon_dice_solver.solve_hci` function, which behaves very similarly to :func:`qiskit_addon_dice_solver.solve_fermion` but provides a higher level of control over the behavior of the underlying ``Dice`` command line application.
