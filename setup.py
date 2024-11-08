@@ -33,10 +33,10 @@ setup(
             "reno",
         ],
         "style": [
-            "ruff==0.6.8",
+            "ruff==0.7.1",
         ],
         "lint": [
-            "mypy==1.11.2",
+            "mypy==1.13.0",
             "pylint>=3.2.7",
             "pydocstyle==6.3",
             "reno",
