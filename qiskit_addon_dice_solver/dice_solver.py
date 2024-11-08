@@ -283,7 +283,7 @@ def _read_dice_outputs(
         amps, ci_strs
     )
     sci_state = SCIState(
-        amplitudes=sci_coefficients, ci_strs_a=addresses_a, ci_strs_b=addresses_b
+        amplitudes=sci_coefficients, ci_strs_a=ci_strs_a, ci_strs_b=ci_strs_b
     )
 
     return energy_dice, sci_state, avg_occupancies
