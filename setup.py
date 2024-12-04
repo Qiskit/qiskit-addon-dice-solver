@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     package_data={"dice_solver": ["bin/Dice", "bin/*.so*"]},
     include_package_data=True,
-    install_requires=["numpy", "pyscf", "qiskit-addon-sqd>=0.6"],
+    install_requires=["numpy", "pyscf", "qiskit-addon-sqd>=0.8"],
     extras_require={
         "dev": ["tox>=4.0", "pytest>=8.0"],
         "docs": [
@@ -33,10 +33,10 @@ setup(
             "reno",
         ],
         "style": [
-            "ruff==0.6.8",
+            "ruff==0.8.1",
         ],
         "lint": [
-            "mypy==1.11.2",
+            "mypy==1.13.0",
             "pylint>=3.2.7",
             "pydocstyle==6.3",
             "reno",

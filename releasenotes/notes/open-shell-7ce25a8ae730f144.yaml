@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Open shell systems are now supported in :func:`qiskit_addon_dice_solver.solve_fermion` by setting the ``open_shell`` keyword argument to ``True``. If set to ``True``, the left and right halves of the input bitstrings may contain different hamming weights.
