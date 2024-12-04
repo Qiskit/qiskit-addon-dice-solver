@@ -174,6 +174,7 @@ def solve_fermion(
     hcore: np.ndarray,
     eri: np.ndarray,
     *,
+    open_shell: bool = False,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
@@ -201,11 +202,6 @@ def solve_fermion(
 
     .. note::
 
-       Only closed-shell systems are supported. The particle number for both
-       spin-up and spin-down determinants is expected to be equal.
-
-    .. note::
-
        Determinants are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
        of ``40`` or fewer orbitals are supported.
 
@@ -218,6 +214,10 @@ def solve_fermion(
             is the number of qubits.
         hcore: Core Hamiltonian matrix representing single-electron integrals
         eri: Electronic repulsion integrals representing two-electron integrals
+        open_shell: A flag specifying whether configurations from the left and right
+            halves of the bitstrings should be kept separate. If ``False``, CI strings
+            from the left and right halves of the bitstrings are combined into a single
+            set of unique configurations and used for both the alpha and beta subspaces.
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
             invocation of ``Dice``. These may be formatted as a ``Sequence`` of strings or a single string. If a ``Sequence``,
@@ -236,7 +236,7 @@ def solve_fermion(
         - Approximate ground state from SCI
         - Average orbital occupancy
     """
-    ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix)
+    ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
     e_dice, sci_state, avg_occupancies = solve_hci(
