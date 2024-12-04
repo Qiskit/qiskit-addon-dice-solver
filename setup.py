@@ -33,7 +33,7 @@ setup(
             "reno",
         ],
         "style": [
-            "ruff==0.7.1",
+            "ruff==0.8.1",
         ],
         "lint": [
             "mypy==1.13.0",
