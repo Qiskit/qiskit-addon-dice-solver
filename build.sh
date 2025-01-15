@@ -5,7 +5,7 @@ set -euo pipefail
 rm -rf external/ && mkdir external
 
 # Get Boost
-wget https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.gz \
+wget https://archives.boost.io/release/1.85.0/source/boost_1_85_0.tar.gz \
     && tar -xzf boost_1_85_0.tar.gz -C $(pwd)/external \
     && rm boost_1_85_0.tar.gz
 
