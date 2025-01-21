@@ -58,8 +58,7 @@ And finally, to install the Python package:
 Limitations
 -----------
 
-- The determinant addresses are interpreted by the ``Dice`` command line application to be 5-byte unsigned integers; therefore, only systems of 40 or fewer orbitals are supported.
-- Only closed-shell systems are supported. The particle number of the spin-up and spin-down determinants are expected to be equal.
+- The determinant addresses are interpreted by the ``Dice`` command line application to be 5-byte unsigned integers; therefore, only systems of 128 or fewer orbitals are supported.
 
 Deprecation Policy
 ------------------
