@@ -355,7 +355,7 @@ def _write_input_files(
     # We don't want Dice to be noisyu for now so we hard code noio
     noio = "noio\n"
     # The number of determinants to write as output. We always want all of them.
-    # The larger integer in C++ is 2147483647
+    # Cap the number of determinants returned to the largest possible `int` value in C
     dim = min(2147483647, math.comb(norb, num_up) * math.comb(norb, num_dn))
     write_best_determinants = f"writeBestDeterminants {dim}\n"
     # Number of perturbation theory parameters. Must be 0.
