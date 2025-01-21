@@ -84,11 +84,6 @@ def solve_hci(
 
     .. note::
 
-       Only closed-shell systems are supported. The particle number for both
-       spin-up and spin-down determinants is expected to be equal.
-
-    .. note::
-
        Determinants are interpreted by the ``Dice`` command line application as 16-byte unsigned integers; therefore, only systems
        of ``128`` or fewer orbitals are supported.
 
