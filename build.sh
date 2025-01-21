@@ -5,11 +5,11 @@ set -euo pipefail
 rm -rf external/ && mkdir external
 
 # Get Boost
-wget https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.gz \
+wget https://archives.boost.io/release/1.85.0/source/boost_1_85_0.tar.gz \
     && tar -xzf boost_1_85_0.tar.gz -C $(pwd)/external \
     && rm boost_1_85_0.tar.gz
 
-# Clone Dice/Riken branch
+# Clone Dice default branch
 git clone https://github.com/caleb-johnson/Dice.git $(pwd)/external/Dice
 
 export BOOST_ROOT=$(pwd)/external/boost_1_85_0

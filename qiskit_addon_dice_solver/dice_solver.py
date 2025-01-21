@@ -89,8 +89,8 @@ def solve_hci(
 
     .. note::
 
-       Determinants are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
-       of ``40`` or fewer orbitals are supported.
+       Determinants are interpreted by the ``Dice`` command line application as 16-byte unsigned integers; therefore, only systems
+       of ``128`` or fewer orbitals are supported.
 
     Args:
         hcore: Core Hamiltonian matrix representing single-electron integrals.
@@ -202,8 +202,8 @@ def solve_fermion(
 
     .. note::
 
-       Determinants are interpreted by the ``Dice`` command line application as 5-byte unsigned integers; therefore, only systems
-       of ``40`` or fewer orbitals are supported.
+       Determinants are interpreted by the ``Dice`` command line application as 16-byte unsigned integers; therefore, only systems
+       of ``128`` or fewer orbitals are supported.
 
     Args:
         bitstring_matrix: A set of configurations defining the subspace onto which the Hamiltonian
@@ -401,12 +401,12 @@ def _write_input_files(
 
 def _integer_to_bytes(n: int) -> bytes:
     """
-    Pack an integer into 5 bytes.
+    Pack an integer into 16 bytes.
 
-    The 5 is hard-coded because that is what the modified Dice branch
+    The 16 is hard-coded because that is what the modified Dice branch
     expects currently.
     """
-    return int(n).to_bytes(5, byteorder="big")
+    return int(n).to_bytes(16, byteorder="big")
 
 
 def _ci_strs_to_bytes(ci_strs: Sequence[int]) -> list[bytes]:
