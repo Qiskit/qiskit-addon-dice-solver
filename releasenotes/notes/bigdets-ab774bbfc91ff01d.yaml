@@ -1,4 +1,0 @@
----
-features:
-  - |
-    Bitstrings are no longer limited to ``80`` bits. Bitstrings up to length ``256`` are now accepted.
