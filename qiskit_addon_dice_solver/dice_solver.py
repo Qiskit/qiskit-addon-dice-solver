@@ -383,8 +383,8 @@ def _write_input_files(
 
     ### Write the determinants to dice dir ###
     str_a, str_b = ci_strs
-    bytes_a = _ci_strs_to_bytes(str_a)
-    bytes_b = _ci_strs_to_bytes(str_b)
+    bytes_a = _ci_strs_to_bytes(str_a, norb)
+    bytes_b = _ci_strs_to_bytes(str_b, norb)
     file1 = open(os.path.join(dice_dir, "AlphaDets.bin"), "wb")  # type: ignore
     for bytestring in bytes_a:
         file1.write(bytestring)  # type: ignore
@@ -395,21 +395,21 @@ def _write_input_files(
     file1.close()
 
 
-def _integer_to_bytes(n: int) -> bytes:
+def _integer_to_bytes(n: int, norb: int) -> bytes:
     """
-    Pack an integer into 16 bytes.
-
-    The 16 is hard-coded because that is what the modified Dice branch
-    expects currently.
+    Pack an integer into the minimum possibly number of bytes.
+    
+    The Dice source uses the same logic to read out the dets.
     """
-    return int(n).to_bytes(16, byteorder="big")
+    detsize = math.ceil((norb + 7) / 8)
+    return int(n).to_bytes(detsize, byteorder="big")
 
 
-def _ci_strs_to_bytes(ci_strs: Sequence[int]) -> list[bytes]:
+def _ci_strs_to_bytes(ci_strs: Sequence[int], norb: int) -> list[bytes]:
     """Convert a list of CI strings into a list of bytes."""
     byte_list = []
     for ci_str in ci_strs:
-        byte_list.append(_integer_to_bytes(ci_str))
+        byte_list.append(_integer_to_bytes(ci_str, norb))
     return byte_list
 
 
