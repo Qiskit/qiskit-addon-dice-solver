@@ -66,12 +66,6 @@ And finally, to install the Python package:
 
 ----------------------------------------------------------------------------------------------------
 
-### Limitations
-
-- The determinant addresses are interpreted by the ``Dice`` command line application to be 16-byte unsigned integers; therefore, only systems of 128 or fewer orbitals are supported.
-
-----------------------------------------------------------------------------------------------------
-
 ### Deprecation Policy
 
 We follow [semantic versioning](https://semver.org/) and are guided by the principles in
