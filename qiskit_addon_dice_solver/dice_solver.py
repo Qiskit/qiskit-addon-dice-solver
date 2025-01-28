@@ -247,7 +247,7 @@ def solve_fermion(
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
-    e_dice, sci_state, avg_occupancies = solve_hci(
+    e_dice, sci_state, avg_occupancies, spin_squared = solve_hci(
         hcore=hcore,
         eri=eri,
         norb=hcore.shape[0],
@@ -261,7 +261,7 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_state, avg_occupancies
+    return e_dice, sci_state, avg_occupancies, spin_squared
 
 
 def _read_dice_outputs(
