@@ -25,6 +25,7 @@ from pathlib import Path
 
 import numpy as np
 from pyscf import tools
+from pyscf.fci import addons, selected_ci
 from qiskit_addon_sqd.fermion import bitstring_matrix_to_ci_strs, SCIState
 
 # Ensure the runtime linker can find the local boost binaries at runtime
@@ -55,14 +56,14 @@ def solve_hci(
     norb: int,
     nelec: tuple[int, int],
     ci_strs: tuple[Sequence[int], Sequence[int]] | None = None,
-    spin_sq: float = 0.0,
+    spin_sq: int = -1,
     select_cutoff: float = 5e-4,
     energy_tol: float = 1e-10,
     max_iter: int = 10,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray], float]:
     """
     Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
@@ -97,7 +98,7 @@ def solve_hci(
             second list containing the beta strings. If not specified, only the Hartree-Fock string will be used.
             A CI string is specified as an integer whose binary expansion encodes the string. For example,
             the Hartree-Fock string with 3 electrons in 5 orbitals is `0b00111`.
-        spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        spin_sq: Target value for the total spin squared for the ground state.
         select_cutoff: Cutoff threshold for retaining state vector coefficients.
         energy_tol: Energy floating point tolerance.
         max_iter: The maximum number of HCI iterations to perform.
@@ -118,6 +119,7 @@ def solve_hci(
         - Minimum energy from SCI calculation
         - Approximate ground state from SCI
         - Average orbital occupancy
+        - Expectation value of spin squared
     """
     n_alpha, n_beta = nelec
 
@@ -152,6 +154,13 @@ def solve_hci(
     # Read and convert outputs
     e_dice, sci_state, avg_occupancies = _read_dice_outputs(dice_dir, norb)
 
+    # Calculate expectation value of S^2
+    myci = addons.fix_spin_(selected_ci.SelectedCI(), ss=spin_sq)
+    sci_vec = selected_ci._as_SCIvector(
+        sci_state.amplitudes, (sci_state.ci_strs_a, sci_state.ci_strs_b)
+    )
+    spin_squared = myci.spin_square(sci_vec, norb, (n_alpha, n_beta))[0]
+
     # Clean up the temp directory of intermediate files, if desired
     if clean_temp_dir:
         shutil.rmtree(dice_dir)
@@ -160,6 +169,7 @@ def solve_hci(
         e_dice,
         sci_state,
         (avg_occupancies[:norb], avg_occupancies[norb:]),
+        spin_squared,
     )
 
 
@@ -169,11 +179,12 @@ def solve_fermion(
     hcore: np.ndarray,
     eri: np.ndarray,
     *,
+    spin_sq: int = -1,
     open_shell: bool = False,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray], float]:
     """
     Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
@@ -209,6 +220,7 @@ def solve_fermion(
             is the number of qubits.
         hcore: Core Hamiltonian matrix representing single-electron integrals
         eri: Electronic repulsion integrals representing two-electron integrals
+        spin_sq: Target value for the total spin squared for the ground state.
         open_shell: A flag specifying whether configurations from the left and right
             halves of the bitstrings should be kept separate. If ``False``, CI strings
             from the left and right halves of the bitstrings are combined into a single
@@ -230,17 +242,18 @@ def solve_fermion(
         - Minimum energy from SCI calculation
         - Approximate ground state from SCI
         - Average orbital occupancy
+        - Expectation value of spin squared
     """
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
-    e_dice, sci_state, avg_occupancies = solve_hci(
+    e_dice, sci_state, avg_occupancies, spin_squared = solve_hci(
         hcore=hcore,
         eri=eri,
         norb=hcore.shape[0],
         nelec=(num_up, num_dn),
         ci_strs=ci_strs,
-        spin_sq=0.0,  # Hard-code target S^2 until supported
+        spin_sq=spin_sq,
         select_cutoff=1e-12,
         energy_tol=1e-10,
         max_iter=1,
@@ -248,7 +261,7 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_state, avg_occupancies
+    return e_dice, sci_state, avg_occupancies, spin_squared
 
 
 def _read_dice_outputs(
@@ -319,7 +332,7 @@ def _write_input_files(
     num_up: int,
     num_dn: int,
     dice_dir: str | Path,
-    spin_sq: float,
+    spin_sq: int,
     select_cutoff: float,
     energy_tol: float,
     max_iter: int,
