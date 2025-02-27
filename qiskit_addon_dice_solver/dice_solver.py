@@ -56,7 +56,7 @@ def solve_hci(
     nelec: tuple[int, int],
     ci_strs: tuple[Sequence[int], Sequence[int]] | None = None,
     spin_sq: float = 0.0,
-    select_cutoff: float = 5e-4,
+    select_cutoff: float = 2147483647,
     energy_tol: float = 1e-10,
     max_iter: int = 10,
     mpirun_options: Sequence[str] | str | None = None,
@@ -241,7 +241,6 @@ def solve_fermion(
         nelec=(num_up, num_dn),
         ci_strs=ci_strs,
         spin_sq=0.0,  # Hard-code target S^2 until supported
-        select_cutoff=1e-12,
         energy_tol=1e-10,
         max_iter=1,
         mpirun_options=mpirun_options,
