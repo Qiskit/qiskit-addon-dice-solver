@@ -45,11 +45,27 @@ Operating systems:
 
 ----------------------------------------------------------------------------------------------------
 
-### Installation:
+### Requirements
 
-First, install some required libraries:
+#### Ubuntu
 
 ``sudo apt install build-essential libboost-all-dev libopenmpi-dev openmpi-bin libhdf5-openmpi-dev``
+
+#### Fedora (not officially supported)
+
+``sudo dnf install gcc-c++ make boost-devel openmpi-devel boost-openmpi-devel openmpi hdf5-openmpi-devel environment-modules``
+
+On Fedora, installing OpenMPI does not automatically make it available in your PATH. To do that, you need to load the OpenMPI module, like this:
+
+``module load mpi/openmpi-x86_64``
+
+To make the effect permanent, consider creating a script in e.g. `/etc/profile.d` that runs this command.
+
+----------------------------------------------------------------------------------------------------
+
+### Installation
+
+First, install the [requirements](#requirements).
 
 Next, install from the most recent stable branch. Users who want to install from the `main` branch should
 note that the hosted documentation may not accurately reflect the state of the API in the `main` branch.
