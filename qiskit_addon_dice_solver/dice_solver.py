@@ -159,7 +159,7 @@ def solve_hci(
     return (
         e_dice,
         sci_state,
-        (np.flip(avg_occupancies[norb:]), np.flip(avg_occupancies[:norb])),
+        (avg_occupancies[:norb], avg_occupancies[norb:]),
     )
 
 
@@ -248,7 +248,11 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_state, avg_occupancies
+    return (
+        e_dice,
+        sci_state,
+        np.concatenate(np.flip(avg_occupancies[1]), np.flip(avg_occupancies[0])),
+    )
 
 
 def _read_dice_outputs(
