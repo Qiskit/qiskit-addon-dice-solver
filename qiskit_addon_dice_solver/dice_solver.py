@@ -159,7 +159,7 @@ def solve_hci(
     return (
         e_dice,
         sci_state,
-        (avg_occupancies[:norb], avg_occupancies[norb:]),
+        (np.flip(avg_occupancies[norb:]), np.flip(avg_occupancies[:norb])),
     )
 
 
