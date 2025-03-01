@@ -229,7 +229,8 @@ def solve_fermion(
     Returns:
         - Minimum energy from SCI calculation
         - Approximate ground state from SCI
-        - Average orbital occupancy
+        - Tuple containing orbital occupancies for spin-up and spin-down orbitals. Formatted as: ``(array([occ_a_0, ..., occ_a_N]), array([occ_b_0, ..., occ_b_N]))``
+
     """
     ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
     num_up = format(ci_strs[0][0], "b").count("1")
@@ -251,7 +252,7 @@ def solve_fermion(
     return (
         e_dice,
         sci_state,
-        np.concatenate(np.flip(avg_occupancies[1]), np.flip(avg_occupancies[0])),
+        avg_occupancies,
     )
 
 

@@ -1,4 +1,4 @@
 ---
 fixes:
   - | 
-    Users should no longer flip the orbital occupancies output from :func:`qiskit_addon_dice_solver.solve_fermion`; they will be output in the correct order (the same order as the bitstrings).
+    Users should no longer flip the orbital occupancies output from :func:`qiskit_addon_dice_solver.solve_fermion`; they will be output in the order expected by configuration recovery.
