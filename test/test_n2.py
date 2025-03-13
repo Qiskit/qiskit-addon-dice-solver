@@ -18,7 +18,6 @@ import numpy as np
 from qiskit_addon_sqd.counts import generate_counts_uniform, counts_to_arrays
 from qiskit_addon_sqd.configuration_recovery import recover_configurations
 from qiskit_addon_sqd.subsampling import postselect_and_subsample
-from qiskit_addon_sqd.fermion import flip_orbital_occupancies
 from qiskit_addon_dice_solver import solve_fermion
 
 
@@ -55,13 +54,13 @@ samples_per_batch = 300
 max_davidson_cycles = 200
 
 # Self-consistent configuration recovery loop
-occupancies_bitwise = None  # orbital i corresponds to column i in bitstring matrix
+avg_occupancy = None
 e_hist = np.zeros((iterations, n_batches))
 for i in range(iterations):
     print(f"Starting configuration recovery iteration {i}")
     # On the first iteration, we have no orbital occupancy information from the
     # solver, so we just post-select from the full bitstring set based on hamming weight.
-    if occupancies_bitwise is None:
+    if avg_occupancy is None:
         bs_mat_tmp = bitstring_matrix_full
         probs_arr_tmp = probs_arr_full
 
@@ -71,7 +70,7 @@ for i in range(iterations):
         bs_mat_tmp, probs_arr_tmp = recover_configurations(
             bitstring_matrix_full,
             probs_arr_full,
-            occupancies_bitwise,
+            avg_occupancy,
             num_elec_a,
             num_elec_b,
         )
@@ -87,7 +86,7 @@ for i in range(iterations):
     )
     # Run eigenstate solvers in a loop. This loop should be parallelized for larger problems.
     int_e = np.zeros(n_batches)
-    int_occs = np.zeros((n_batches, 2 * num_orbitals))
+    occs_tmp = []
     for j, batch in enumerate(batches):
         energy_sci, wf_mags, avg_occs = solve_fermion(
             batch,
@@ -97,16 +96,13 @@ for i in range(iterations):
         )
         energy_sci += nuclear_repulsion_energy
         int_e[j] = energy_sci
-        int_occs[j, :num_orbitals] = avg_occs[0]
-        int_occs[j, num_orbitals:] = avg_occs[1]
+        occs_tmp.append(avg_occs)
 
     # Combine batch results
-    avg_occupancy = np.mean(int_occs, axis=0)
-    # The occupancies from the solver should be flipped to match the bits in the bitstring matrix.
-    occupancies_bitwise = flip_orbital_occupancies(avg_occupancy)
+    avg_occupancy = tuple(np.mean(occs_tmp, axis=0))
 
     # Track optimization history
     e_hist[i, :] = int_e
 
-print(f"Exact energy: -109.10288938")
+print("Exact energy: -109.10288938")
 print(f"Estimated energy: {np.min(e_hist[-1])}")
