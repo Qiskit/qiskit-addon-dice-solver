@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    :func:`qiskit_addon_dice_solver.solve_fermion` now accepts CI strings directly as input to its first positional argument. Users may now specify their determinants with a bitstring matrix or CI strings.

@@ -164,7 +164,7 @@ def solve_hci(
 
 
 def solve_fermion(
-    bitstring_matrix: np.ndarray,
+    bitstring_matrix: np.ndarray | tuple[Sequence[int], Sequence[int]],
     /,
     hcore: np.ndarray,
     eri: np.ndarray,
@@ -202,11 +202,15 @@ def solve_fermion(
 
     Args:
         bitstring_matrix: A set of configurations defining the subspace onto which the Hamiltonian
-            will be projected and diagonalized. This is a 2D array of ``bool`` representations of bit
-            values such that each row represents a single bitstring. The spin-up configurations
-            should be specified by column indices in range ``(N, N/2]``, and the spin-down
-            configurations should be specified by column indices in range ``(N/2, 0]``, where ``N``
-            is the number of qubits.
+            will be projected and diagonalized.
+
+            This may be specified in two ways:
+
+            A bitstring matrix: A 2D ``numpy.ndarray`` of ``bool`` representations of bit values such that each row represents a single bitstring. The spin-up
+            configurations should be specified by column indices in range ``(N, N/2]``, and the spin-down configurations should be specified by column
+            indices in range ``(N/2, 0]``, where ``N`` is the number of qubits.
+
+            CI strings: A length-2 tuple of sequences containing integer representations of the spin-up and spin-down determinants, respectively.
         hcore: Core Hamiltonian matrix representing single-electron integrals
         eri: Electronic repulsion integrals representing two-electron integrals
         open_shell: A flag specifying whether configurations from the left and right
@@ -231,7 +235,14 @@ def solve_fermion(
         - Approximate ground state from SCI
         - Average orbital occupancy
     """
-    ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
+    if isinstance(bitstring_matrix, Sequence):
+        if len(bitstring_matrix) != 2:
+            raise ValueError(
+                "CI strings must be in form of a bitstring matrix or a length-2 tuple of sequences containing the spin-up and spin-down determinants, respectively."
+            )
+        ci_strs = bitstring_matrix
+    else:
+        ci_strs = bitstring_matrix_to_ci_strs(bitstring_matrix, open_shell=open_shell)
     num_up = format(ci_strs[0][0], "b").count("1")
     num_dn = format(ci_strs[1][0], "b").count("1")
     e_dice, sci_state, avg_occupancies = solve_hci(
