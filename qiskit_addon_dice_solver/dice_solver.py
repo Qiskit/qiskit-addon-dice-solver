@@ -236,7 +236,7 @@ def solve_fermion(
         - Approximate ground state from SCI
         - Average orbital occupancy
     """
-    if isinstance(bitstring_matrix, Sequence):
+    if isinstance(bitstring_matrix, tuple):
         if len(bitstring_matrix) != 2:
             raise ValueError(
                 "CI strings must be in form of a bitstring matrix or a length-2 tuple of sequences containing the spin-up and spin-down determinants, respectively."
