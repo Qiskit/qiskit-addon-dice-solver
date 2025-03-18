@@ -211,6 +211,7 @@ def solve_fermion(
             indices in range ``(N/2, 0]``, where ``N`` is the number of qubits.
 
             CI strings: A length-2 tuple of sequences containing integer representations of the spin-up and spin-down determinants, respectively.
+                The expected ordering is ``([a_str_0, ..., a_str_N], [b_str_0, ..., b_str_M])``.
         hcore: Core Hamiltonian matrix representing single-electron integrals
         eri: Electronic repulsion integrals representing two-electron integrals
         open_shell: A flag specifying whether configurations from the left and right
