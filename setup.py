@@ -15,7 +15,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="qiskit-addon-dice-solver",
-    version="0.2.0",
+    version="0.3.0",
     author="IBM Quantum Middleware",
     description="A Python wrapper for the Dice eigensolver.",
     packages=find_packages(),
