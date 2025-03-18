@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixed the ``select_cutoff`` value used in :func:`qiskit_addon_dice_solver.solve_fermion` to be the max 32-bit signed ``int`` value.

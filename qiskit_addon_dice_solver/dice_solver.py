@@ -25,7 +25,7 @@ from pathlib import Path
 
 import numpy as np
 from pyscf import tools
-from qiskit_addon_sqd.fermion import bitstring_matrix_to_ci_strs, SCIState
+from qiskit_addon_sqd.fermion import SCIState, bitstring_matrix_to_ci_strs
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -240,8 +240,10 @@ def solve_fermion(
         norb=hcore.shape[0],
         nelec=(num_up, num_dn),
         ci_strs=ci_strs,
-        spin_sq=0.0,  # Hard-code target S^2 until supported
-        select_cutoff=1e-12,
+        # Hard-code S^2 = 0 until other values are supported
+        spin_sq=0.0,
+        # Large select cutoff to prevent the addition of additional configurations
+        select_cutoff=2147483647,
         energy_tol=1e-10,
         max_iter=1,
         mpirun_options=mpirun_options,
