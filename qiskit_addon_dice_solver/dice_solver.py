@@ -491,22 +491,25 @@ def _construct_ci_vec_from_amplitudes(
     amps: list[float], ci_strs: list[list[int]]
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Construct wavefunction amplitudes from CI strings and their associated amplitudes."""
-    uniques = np.unique(np.array(ci_strs))
-    num_dets = len(uniques)
-    ci_vec = np.zeros((num_dets, num_dets))
-    ci_strs_a = np.zeros(num_dets, dtype=np.int64)
-    ci_strs_b = np.zeros(num_dets, dtype=np.int64)
+    uniques_a = np.unique(np.array([s[0] for s in ci_strs]))
+    uniques_b = np.unique(np.array([s[1] for s in ci_strs]))
+    num_dets_a = len(uniques_a)
+    num_dets_b = len(uniques_b)
+    ci_vec = np.zeros((num_dets_a, num_dets_b))
+    ci_strs_a = np.zeros(num_dets_a, dtype=np.int64)
+    ci_strs_b = np.zeros(num_dets_b, dtype=np.int64)
 
-    ci_str_map = {uni_str: i for i, uni_str in enumerate(uniques)}
+    ci_str_map_a = {uni_str: i for i, uni_str in enumerate(uniques_a)}
+    ci_str_map_b = {uni_str: i for i, uni_str in enumerate(uniques_b)}
 
     for amp, ci_str in zip(amps, ci_strs):
         ci_str_a, ci_str_b = ci_str
-        i = ci_str_map[ci_str_a]
-        j = ci_str_map[ci_str_b]
+        i = ci_str_map_a[ci_str_a]
+        j = ci_str_map_b[ci_str_b]
 
         ci_vec[i, j] = amp
 
-        ci_strs_a[i] = uniques[i]
-        ci_strs_b[j] = uniques[j]
+        ci_strs_a[i] = uniques_a[i]
+        ci_strs_b[j] = uniques_b[j]
 
     return ci_vec, ci_strs_a, ci_strs_b
