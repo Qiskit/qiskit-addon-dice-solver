@@ -491,8 +491,9 @@ def _construct_ci_vec_from_amplitudes(
     amps: list[float], ci_strs: list[list[int]]
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Construct wavefunction amplitudes from CI strings and their associated amplitudes."""
-    uniques_a = np.unique(np.array([s[0] for s in ci_strs]))
-    uniques_b = np.unique(np.array([s[1] for s in ci_strs]))
+    strs_a, strs_b = zip(*ci_strs)
+    uniques_a = np.unique(strs_a)
+    uniques_b = np.unique(strs_b)
     num_dets_a = len(uniques_a)
     num_dets_b = len(uniques_b)
     ci_vec = np.zeros((num_dets_a, num_dets_b))
