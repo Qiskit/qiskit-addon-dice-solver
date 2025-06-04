@@ -12,19 +12,16 @@
 
 import os
 
-from pyscf import ao2mo, tools
 import numpy as np
+from pyscf import ao2mo, tools
+from qiskit_addon_dice_solver import solve_sci_batch
 
-from qiskit_addon_sqd.counts import generate_counts_uniform, counts_to_arrays
-from qiskit_addon_sqd.configuration_recovery import recover_configurations
-from qiskit_addon_sqd.subsampling import postselect_and_subsample
-from qiskit_addon_dice_solver import solve_fermion
-
+from qiskit_addon_sqd.counts import generate_bit_array_uniform
+from qiskit_addon_sqd.fermion import SCIResult, diagonalize_fermionic_hamiltonian
 
 # Specify molecule properties
 num_orbitals = 16
 num_elec_a = num_elec_b = 5
-open_shell = False
 spin_sq = 0
 
 # Read in molecule from disk
@@ -37,72 +34,40 @@ eri = ao2mo.restore(1, mf_as._eri, num_orbitals)
 nuclear_repulsion_energy = mf_as.mol.energy_nuc()
 
 # Create a seed to control randomness throughout this workflow
-rand_seed = 42
+rand_seed = np.random.default_rng(42)
 
 # Generate random samples
-counts_dict = generate_counts_uniform(10_000, num_orbitals * 2, rand_seed=rand_seed)
+bit_array = generate_bit_array_uniform(10_000, num_orbitals * 2, rand_seed=rand_seed)
 
-# Convert counts into bitstring and probability arrays
-bitstring_matrix_full, probs_arr_full = counts_to_arrays(counts_dict)
 
-# SQSD options
-iterations = 5
+# Run SQD
+result_history = []
 
-# Eigenstate solver options
-n_batches = 5
-samples_per_batch = 300
-max_davidson_cycles = 200
 
-# Self-consistent configuration recovery loop
-avg_occupancy = None
-e_hist = np.zeros((iterations, n_batches))
-for i in range(iterations):
-    print(f"Starting configuration recovery iteration {i}")
-    # On the first iteration, we have no orbital occupancy information from the
-    # solver, so we just post-select from the full bitstring set based on hamming weight.
-    if avg_occupancy is None:
-        bs_mat_tmp = bitstring_matrix_full
-        probs_arr_tmp = probs_arr_full
+def callback(results: list[SCIResult]):
+    result_history.append(results)
+    iteration = len(result_history)
+    print(f"Iteration {iteration}")
+    for i, result in enumerate(results):
+        print(f"\tSubsample {i}")
+        print(f"\t\tEnergy: {result.energy + nuclear_repulsion_energy}")
+        print(f"\t\tSubspace dimension: {np.prod(result.sci_state.amplitudes.shape)}")
 
-    # In following iterations, we use both the occupancy info and the target hamming
-    # weight to refine bitstrings.
-    else:
-        bs_mat_tmp, probs_arr_tmp = recover_configurations(
-            bitstring_matrix_full,
-            probs_arr_full,
-            avg_occupancy,
-            num_elec_a,
-            num_elec_b,
-        )
 
-    # Throw out samples with incorrect hamming weight and create batches of subsamples.
-    batches = postselect_and_subsample(
-        bs_mat_tmp,
-        probs_arr_tmp,
-        hamming_right=num_elec_a,
-        hamming_left=num_elec_b,
-        samples_per_batch=samples_per_batch,
-        num_batches=n_batches,
-    )
-    # Run eigenstate solvers in a loop. This loop should be parallelized for larger problems.
-    int_e = np.zeros(n_batches)
-    occs_tmp = []
-    for j, batch in enumerate(batches):
-        energy_sci, wf_mags, avg_occs = solve_fermion(
-            batch,
-            hcore,
-            eri,
-            mpirun_options=["-quiet", "-n", "8"],
-        )
-        energy_sci += nuclear_repulsion_energy
-        int_e[j] = energy_sci
-        occs_tmp.append(avg_occs)
-
-    # Combine batch results
-    avg_occupancy = tuple(np.mean(occs_tmp, axis=0))
-
-    # Track optimization history
-    e_hist[i, :] = int_e
+result = diagonalize_fermionic_hamiltonian(
+    hcore,
+    eri,
+    bit_array,
+    samples_per_batch=300,
+    norb=num_orbitals,
+    nelec=(num_elec_a, num_elec_b),
+    num_batches=5,
+    max_iterations=5,
+    sci_solver=solve_sci_batch,
+    symmetrize_spin=True,
+    callback=callback,
+    seed=rand_seed,
+)
 
 print("Exact energy: -109.10288938")
-print(f"Estimated energy: {np.min(e_hist[-1])}")
+print(f"Estimated energy: {result.energy + nuclear_repulsion_energy}")
