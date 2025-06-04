@@ -57,7 +57,7 @@ def solve_sci(
     nelec: tuple[int, int],
     *,
     # TODO allow spin_sq to be None
-    spin_sq: float = 0.0,
+    spin_sq: float | None = None,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
@@ -169,7 +169,7 @@ def solve_hci(
     norb: int,
     nelec: tuple[int, int],
     ci_strs: tuple[np.ndarray, np.ndarray] | None = None,
-    spin_sq: float = 0.0,
+    spin_sq: float | None = None,
     select_cutoff: float = 5e-4,
     energy_tol: float = 1e-10,
     max_iter: int = 10,
@@ -449,7 +449,7 @@ def _write_input_files(
     num_up: int,
     num_dn: int,
     dice_dir: str | Path,
-    spin_sq: float,
+    spin_sq: float | None,
     select_cutoff: float,
     energy_tol: float,
     max_iter: int,
@@ -464,7 +464,7 @@ def _write_input_files(
     # Return only the lowest-energy state
     nroots = "nroots 1\n"
     # Spin squared
-    spin = f"spin {spin_sq}\n"
+    spin = f"spin {spin_sq}\n" if spin_sq is not None else ""
     # Path to active space dump
     orbitals = "orbitals fcidump.txt\n"
     # The Dice/Riken branch this package is built on modifies the normal behavior
