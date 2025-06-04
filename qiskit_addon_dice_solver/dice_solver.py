@@ -237,7 +237,7 @@ def solve_hci(
 
     if ci_strs is None:
         # If CI strings not specified, use the Hartree-Fock bitstring
-        ci_strs = ([(1 << n_alpha) - 1], [(1 << n_beta) - 1])
+        ci_strs = (np.array([(1 << n_alpha) - 1]), np.array([(1 << n_beta) - 1]))
 
     # Set up the temp directory
     temp_dir = temp_dir or tempfile.gettempdir()
@@ -278,7 +278,7 @@ def solve_hci(
 
 
 def solve_fermion(
-    bitstring_matrix: np.ndarray | tuple[Sequence[int], Sequence[int]],
+    bitstring_matrix: np.ndarray | tuple[np.ndarray, np.ndarray],
     /,
     hcore: np.ndarray,
     eri: np.ndarray,
@@ -443,7 +443,7 @@ def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> No
 
 
 def _write_input_files(
-    ci_strs: tuple[Sequence[int], Sequence[int]],
+    ci_strs: tuple[np.ndarray, np.ndarray],
     active_space_path: str | Path,
     norb: int,
     num_up: int,
@@ -535,7 +535,7 @@ def _integer_to_bytes(n: int) -> bytes:
     return int(n).to_bytes(16, byteorder="big")
 
 
-def _ci_strs_to_bytes(ci_strs: Sequence[int]) -> list[bytes]:
+def _ci_strs_to_bytes(ci_strs: np.ndarray) -> list[bytes]:
     """Convert a list of CI strings into a list of bytes."""
     byte_list = []
     for ci_str in ci_strs:
