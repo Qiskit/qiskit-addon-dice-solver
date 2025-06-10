@@ -571,36 +571,46 @@ def _read_wave_function_magnitudes(
     return occupancy_strs, amplitudes
 
 
-def _bitstring_from_occupancy_str(occupancy_str: str) -> np.ndarray:
+def _bitstrings_from_occupancy_strs(occupancy_strs: list[str]) -> np.ndarray:
     """Convert an occupancy string into a bit array."""
-    norb = len(occupancy_str)
-    bitstring = np.zeros(2 * norb, dtype=bool)
-    for i in range(len(occupancy_str)):
-        if occupancy_str[i] == "2":
-            bitstring[i] = 1
-            bitstring[i + norb] = 1
-        if occupancy_str[i] == "a":
-            bitstring[i] = 1
-        if occupancy_str[i] == "b":
-            bitstring[i + norb] = 1
 
-    return bitstring
+    occupancy_strs_as_array = np.array([list(string) for string in occupancy_strs])
+
+    norb = occupancy_strs.shape[1]
+    num_strs = occupancy_strs.shape[1]
+    bitstring_matrix = np.zeros(2 * norb, dtype=bool)
+
+    mask_a = occupancy_strs_as_array == "a"
+    mask_b = occupancy_strs_as_array == "b"
+    mask_d = occupancy_strs_as_array == "2"
+
+    bitstring_matrix[:, :norb] = mask_a
+    bitstring_matrix[:, norb:] = mask_b
+    bitstring_matrix[:, :norb] += mask_d
+    bitstring_matrix[:, norb:] += mask_d
+
+    return bitstring_matrix
 
 
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     """Convert occupancies to CI strings."""
     norb = len(occupancy_strs[0])
     ci_strs = []
-    for occ in occupancy_strs:
-        bitstring = _bitstring_from_occupancy_str(occ)
-        bitstring_a = bitstring[:norb]
-        bitstring_b = bitstring[norb:]
-        ci_str_a = sum(b << i for i, b in enumerate(bitstring_a))
-        ci_str_b = sum(b << i for i, b in enumerate(bitstring_b))
-        ci_str = [ci_str_a, ci_str_b]
-        ci_strs.append(ci_str)
+    bitstring_matrix = _bitstrings_from_occupancy_strs(occupancy_strs)
+    bitstring_matrix_a = (bitstring_matrix[:, :norb]).astype(object)
+    bitstring_matrix_b = (bitstring_matrix[:, norb:]).astype(object)
 
-    return ci_strs
+    strings_a = np.zeros(bitstring_matrix_a.shape[0], dtype=object)
+    strings_b = np.zeros(bitstring_matrix_b.shape[0], dtype=object)
+
+    for i in range(bitstring_matrix_b.shape[1]):
+        strings_a += 2**i * bitstring_matrix_a[:, -i - 1]
+        strings_b += 2**i * bitstring_matrix_b[:, -i - 1]
+
+    ci_strs = np.concatenate(
+        (strings_a[:, np.newaxis], strings_b[:, np.newaxis]), axis=1
+    )
+    return list(ci_strs)
 
 
 def _construct_ci_vec_from_amplitudes(
