@@ -592,8 +592,9 @@ def _bitstrings_from_occupancy_strs(occupancy_strs: list[str]) -> np.ndarray:
     return bitstring_matrix
 
 
+"""
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
-    """Convert occupancies to CI strings."""
+    Convert occupancies to CI strings.
     norb = len(occupancy_strs[0])
     ci_strs = []
     bitstring_matrix = _bitstrings_from_occupancy_strs(occupancy_strs)
@@ -606,6 +607,29 @@ def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     for i in range(bitstring_matrix_b.shape[1]):
         strings_a += 2**i * bitstring_matrix_a[:, i]
         strings_b += 2**i * bitstring_matrix_b[:, i]
+
+    ci_strs = np.concatenate(
+        (strings_a[:, np.newaxis], strings_b[:, np.newaxis]), axis=1
+    )
+    return list(ci_strs)
+"""
+
+
+def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
+    """Convert occupancies to CI strings."""
+    norb = len(occupancy_strs[0])
+    ci_strs = []
+    occupancy_str_array = np.array(occupancy_strs)
+    strings_a = np.zeros(len(occupancy_strs), dtype=object)
+    strings_b = np.zeros(len(occupancy_strs), dtype=object)
+
+    for i in range(norb):
+        chars = np.strings.slice(occupancy_str_array, i, i + 1)
+        mask_a = chars == "a"
+        mask_b = chars == "b"
+        mask_d = chars == "2"
+        strings_a += 2**i * (mask_a + mask_d)
+        strings_b += 2**i * (mask_b + mask_d)
 
     ci_strs = np.concatenate(
         (strings_a[:, np.newaxis], strings_b[:, np.newaxis]), axis=1
