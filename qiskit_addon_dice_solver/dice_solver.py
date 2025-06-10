@@ -571,27 +571,6 @@ def _read_wave_function_magnitudes(
     return occupancy_strs, amplitudes
 
 
-def _bitstrings_from_occupancy_strs(occupancy_strs: list[str]) -> np.ndarray:
-    """Convert an occupancy string into a bit array."""
-
-    occupancy_strs_as_array = np.array([list(string) for string in occupancy_strs])
-
-    norb = occupancy_strs_as_array.shape[1]
-    num_strs = occupancy_strs_as_array.shape[0]
-    bitstring_matrix = np.zeros((num_strs, 2 * norb), dtype=bool)
-
-    mask_a = occupancy_strs_as_array == "a"
-    mask_b = occupancy_strs_as_array == "b"
-    mask_d = occupancy_strs_as_array == "2"
-
-    bitstring_matrix[:, :norb] = mask_a
-    bitstring_matrix[:, norb:] = mask_b
-    bitstring_matrix[:, :norb] += mask_d
-    bitstring_matrix[:, norb:] += mask_d
-
-    return bitstring_matrix
-
-
 """
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     Convert occupancies to CI strings.
