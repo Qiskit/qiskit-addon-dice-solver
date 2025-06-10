@@ -571,29 +571,6 @@ def _read_wave_function_magnitudes(
     return occupancy_strs, amplitudes
 
 
-"""
-def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
-    Convert occupancies to CI strings.
-    norb = len(occupancy_strs[0])
-    ci_strs = []
-    bitstring_matrix = _bitstrings_from_occupancy_strs(occupancy_strs)
-    bitstring_matrix_a = (bitstring_matrix[:, :norb]).astype(object)
-    bitstring_matrix_b = (bitstring_matrix[:, norb:]).astype(object)
-
-    strings_a = np.zeros(bitstring_matrix_a.shape[0], dtype=object)
-    strings_b = np.zeros(bitstring_matrix_b.shape[0], dtype=object)
-
-    for i in range(bitstring_matrix_b.shape[1]):
-        strings_a += 2**i * bitstring_matrix_a[:, i]
-        strings_b += 2**i * bitstring_matrix_b[:, i]
-
-    ci_strs = np.concatenate(
-        (strings_a[:, np.newaxis], strings_b[:, np.newaxis]), axis=1
-    )
-    return list(ci_strs)
-"""
-
-
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     """Convert occupancies to CI strings."""
     norb = len(occupancy_strs[0])
