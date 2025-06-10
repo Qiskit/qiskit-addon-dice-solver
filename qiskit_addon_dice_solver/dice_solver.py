@@ -578,7 +578,7 @@ def _bitstrings_from_occupancy_strs(occupancy_strs: list[str]) -> np.ndarray:
 
     norb = occupancy_strs.shape[1]
     num_strs = occupancy_strs.shape[1]
-    bitstring_matrix = np.zeros(2 * norb, dtype=bool)
+    bitstring_matrix = np.zeros((num_strs, 2 * norb), dtype=bool)
 
     mask_a = occupancy_strs_as_array == "a"
     mask_b = occupancy_strs_as_array == "b"
