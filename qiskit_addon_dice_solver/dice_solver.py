@@ -576,8 +576,13 @@ def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     norb = len(occupancy_strs[0])
     ci_strs = []
     occupancy_str_array = np.array(occupancy_strs)
-    strings_a = np.zeros(len(occupancy_strs), dtype=object)
-    strings_b = np.zeros(len(occupancy_strs), dtype=object)
+
+    if norb > 63:
+        strings_a = np.zeros(len(occupancy_strs), dtype=object)
+        strings_b = np.zeros(len(occupancy_strs), dtype=object)
+    else:
+        strings_a = np.zeros(len(occupancy_strs), dtype="int64")
+        strings_b = np.zeros(len(occupancy_strs), dtype="int64")
 
     for i in range(norb):
         chars = np.strings.slice(occupancy_str_array, i, i + 1)
