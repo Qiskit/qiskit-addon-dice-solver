@@ -1,0 +1,14 @@
+[package]
+name = "dice_outfile_reader"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "dice_outfile_reader"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21.0", features = ["extension-module"] }
+rayon = "1.10"
+byteorder = "1.5"
+numpy = "0.21"
