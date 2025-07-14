@@ -12,3 +12,5 @@ pyo3 = { version = "0.21.0", features = ["extension-module"] }
 rayon = "1.10"
 byteorder = "1.5"
 numpy = "0.21"
+memmap2 = "0.9.5"
+ndarray = "0.15"
