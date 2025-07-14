@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 from setuptools import setup, find_packages
+from setuptools_rust import RustExtension, Binding
 
 
 setup(
@@ -42,4 +43,13 @@ setup(
             "reno",
         ],
     },
+    rust_extensions=[
+        RustExtension(
+            "qiskit_addon_dice_solver.dice_outfile_reader",
+            "Cargo.toml",
+            binding=Binding.PyO3,
+            debug=False
+        )
+    ],
+    zip_safe=False,
 )
