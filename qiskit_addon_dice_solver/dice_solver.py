@@ -27,6 +27,7 @@ import numpy as np
 from pyscf import tools
 
 from qiskit_addon_sqd.fermion import SCIResult, SCIState, bitstring_matrix_to_ci_strs
+from qiskit_addon_dice_solver import dice_outfile_reader
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -380,7 +381,7 @@ def solve_fermion(
 
 
 def _read_dice_outputs(
-    dice_dir: str | Path, norb: int, nelec: tuple[int, int]
+    dice_dir: str | Path, norb: int, nelec: tuple[int, int],
 ) -> tuple[float, SCIState, np.ndarray]:
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
     # Read in the avg orbital occupancies
@@ -398,11 +399,10 @@ def _read_dice_outputs(
     energy_dice = struct.unpack("d", bytestring_energy)[0]
 
     # Construct the SCI wavefunction coefficients from Dice output dets.bin
-    occs, amps = _read_wave_function_magnitudes(os.path.join(dice_dir, "dets.bin"))
-    ci_strs = _ci_strs_from_occupancies(occs)
-    sci_coefficients, ci_strs_a, ci_strs_b = _construct_ci_vec_from_amplitudes(
-        amps, ci_strs
+    sci_coefficients, ci_strs_a, ci_strs_b = dice_outfile_reader.from_bin_file_to_sci(
+        os.path.join(dice_dir, "dets.bin")
     )
+    
     sci_state = SCIState(
         amplitudes=sci_coefficients,
         ci_strs_a=ci_strs_a,
@@ -541,92 +541,3 @@ def _ci_strs_to_bytes(ci_strs: np.ndarray) -> list[bytes]:
     for ci_str in ci_strs:
         byte_list.append(_integer_to_bytes(ci_str))
     return byte_list
-
-
-def _read_wave_function_magnitudes(
-    filename: str | Path,
-) -> tuple[list[str], list[float]]:
-    """Read the wavefunction magnitudes from binary file output from Dice."""
-    file2 = open(filename, "rb")
-
-    # Read 32 bit integers describing the # dets and # orbs
-    det_bytes = file2.read(4)
-    num_dets = struct.unpack("i", det_bytes)[0]
-    norb_bytes = file2.read(4)
-    num_orb = struct.unpack("i", norb_bytes)[0]
-
-    occupancy_strs = []
-    amplitudes = []
-    for i in range(2 * num_dets):
-        # read the wave function amplitude
-        if i % 2 == 0:
-            # Read the double-precision float describing the amplitude
-            wf_bytes = file2.read(8)
-            wf_amplitude = struct.unpack("d", wf_bytes)[0]
-            amplitudes.append(wf_amplitude)
-        else:
-            b = file2.read(num_orb)
-            occupancy_strs.append(str(b)[2:-1])
-
-    return occupancy_strs, amplitudes
-
-
-def _bitstring_from_occupancy_str(occupancy_str: str) -> np.ndarray:
-    """Convert an occupancy string into a bit array."""
-    norb = len(occupancy_str)
-    bitstring = np.zeros(2 * norb, dtype=bool)
-    for i in range(len(occupancy_str)):
-        if occupancy_str[i] == "2":
-            bitstring[i] = 1
-            bitstring[i + norb] = 1
-        if occupancy_str[i] == "a":
-            bitstring[i] = 1
-        if occupancy_str[i] == "b":
-            bitstring[i + norb] = 1
-
-    return bitstring
-
-
-def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
-    """Convert occupancies to CI strings."""
-    norb = len(occupancy_strs[0])
-    ci_strs = []
-    for occ in occupancy_strs:
-        bitstring = _bitstring_from_occupancy_str(occ)
-        bitstring_a = bitstring[:norb]
-        bitstring_b = bitstring[norb:]
-        ci_str_a = sum(b << i for i, b in enumerate(bitstring_a))
-        ci_str_b = sum(b << i for i, b in enumerate(bitstring_b))
-        ci_str = [ci_str_a, ci_str_b]
-        ci_strs.append(ci_str)
-
-    return ci_strs
-
-
-def _construct_ci_vec_from_amplitudes(
-    amps: list[float], ci_strs: list[list[int]]
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Construct wavefunction amplitudes from CI strings and their associated amplitudes."""
-    strs_a, strs_b = zip(*ci_strs)
-    uniques_a = np.unique(strs_a)
-    uniques_b = np.unique(strs_b)
-    num_dets_a = len(uniques_a)
-    num_dets_b = len(uniques_b)
-    ci_vec = np.zeros((num_dets_a, num_dets_b))
-    ci_strs_a = np.zeros(num_dets_a, dtype=np.int64)
-    ci_strs_b = np.zeros(num_dets_b, dtype=np.int64)
-
-    ci_str_map_a = {uni_str: i for i, uni_str in enumerate(uniques_a)}
-    ci_str_map_b = {uni_str: i for i, uni_str in enumerate(uniques_b)}
-
-    for amp, ci_str in zip(amps, ci_strs):
-        ci_str_a, ci_str_b = ci_str
-        i = ci_str_map_a[ci_str_a]
-        j = ci_str_map_b[ci_str_b]
-
-        ci_vec[i, j] = amp
-
-        ci_strs_a[i] = uniques_a[i]
-        ci_strs_b[j] = uniques_b[j]
-
-    return ci_vec, ci_strs_a, ci_strs_b
