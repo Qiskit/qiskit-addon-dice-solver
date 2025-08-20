@@ -589,16 +589,27 @@ def _bitstring_from_occupancy_str(occupancy_str: str) -> np.ndarray:
 
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     """Convert occupancies to CI strings."""
-    norb = len(occupancy_strs[0])
     ci_strs = []
     for occ in occupancy_strs:
-        bitstring = _bitstring_from_occupancy_str(occ)
-        bitstring_a = bitstring[:norb]
-        bitstring_b = bitstring[norb:]
-        ci_str_a = sum(b << i for i, b in enumerate(bitstring_a))
-        ci_str_b = sum(b << i for i, b in enumerate(bitstring_b))
-        ci_str = [ci_str_a, ci_str_b]
-        ci_strs.append(ci_str)
+        ci_str_a = 0
+        ci_str_b = 0
+        for idx, char in enumerate(occ):
+            if char == "2":
+                ci_str_a += 1 << idx
+                ci_str_b += 1 << idx
+            elif char == "a":
+                ci_str_a += 1 << idx
+            elif char == "b":
+                ci_str_b += 1 << idx
+            elif char == "0":
+                pass
+            else:
+                raise ValueError(
+                    f"Invalid character '{char}' in occupancy string. "
+                    f"Only valid characters are '2', 'a', 'b', and '0'."
+                )
+
+        ci_strs.append([ci_str_a, ci_str_b])
 
     return ci_strs
 
