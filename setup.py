@@ -36,7 +36,7 @@ setup(
             "ruff==0.12.11",
         ],
         "lint": [
-            "mypy==1.16.1",
+            "mypy==1.17.1",
             "pylint>=3.2.7",
             "pydocstyle==6.3",
             "reno",
