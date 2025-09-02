@@ -47,6 +47,8 @@ Operating systems:
 
 ### Requirements
 
+The package needs Rust compiler. Follow plafrom-specific instructions [here](https://www.rust-lang.org/tools/install) to install Rust.
+
 #### Ubuntu
 
 ``sudo apt install build-essential libboost-all-dev libopenmpi-dev openmpi-bin libhdf5-openmpi-dev``
