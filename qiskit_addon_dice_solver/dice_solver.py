@@ -571,36 +571,29 @@ def _read_wave_function_magnitudes(
     return occupancy_strs, amplitudes
 
 
-def _bitstring_from_occupancy_str(occupancy_str: str) -> np.ndarray:
-    """Convert an occupancy string into a bit array."""
-    norb = len(occupancy_str)
-    bitstring = np.zeros(2 * norb, dtype=bool)
-    for i in range(len(occupancy_str)):
-        if occupancy_str[i] == "2":
-            bitstring[i] = 1
-            bitstring[i + norb] = 1
-        if occupancy_str[i] == "a":
-            bitstring[i] = 1
-        if occupancy_str[i] == "b":
-            bitstring[i + norb] = 1
-
-    return bitstring
-
-
 def _ci_strs_from_occupancies(occupancy_strs: list[str]) -> list[list[int]]:
     """Convert occupancies to CI strings."""
     norb = len(occupancy_strs[0])
     ci_strs = []
-    for occ in occupancy_strs:
-        bitstring = _bitstring_from_occupancy_str(occ)
-        bitstring_a = bitstring[:norb]
-        bitstring_b = bitstring[norb:]
-        ci_str_a = sum(b << i for i, b in enumerate(bitstring_a))
-        ci_str_b = sum(b << i for i, b in enumerate(bitstring_b))
-        ci_str = [ci_str_a, ci_str_b]
-        ci_strs.append(ci_str)
+    occupancy_str_array = np.array(occupancy_strs)
 
-    return ci_strs
+    dtype = object if norb > 63 else np.int64
+    strings_a = np.zeros(len(occupancy_strs), dtype=dtype)
+    strings_b = np.zeros(len(occupancy_strs), dtype=dtype)
+
+    for i in range(norb):
+        chars = np.strings.slice(occupancy_str_array, i, i + 1)
+        mask_a = chars == "a"
+        mask_b = chars == "b"
+        mask_d = chars == "2"
+        base = 1 << i
+        strings_a += base * (mask_a + mask_d)
+        strings_b += base * (mask_b + mask_d)
+
+    ci_strs = np.concatenate(
+        (strings_a[:, np.newaxis], strings_b[:, np.newaxis]), axis=1
+    )
+    return list(ci_strs)
 
 
 def _construct_ci_vec_from_amplitudes(
