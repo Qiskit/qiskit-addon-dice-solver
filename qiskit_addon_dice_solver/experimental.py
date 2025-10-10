@@ -191,8 +191,9 @@ def solve_sci(
 
     Args:
         ci_strings: Pair (strings_a, strings_b) of arrays of spin-alpha CI
-            strings and spin-beta CI strings whose Cartesian product give the basis of
-            the subspace in which to perform a diagonalization.
+            strings and spin-beta CI strings.  When 'cartesian_product=True'their Cartesian product give the basis of
+            the subspace in which to perform a diagonalization. When 'cartesian_product=False'their concatenation give the basis of
+            the subspace in which to perform a diagonalization. i.e. 'det[i] = concatenate(strings_a[i], strings_b[i])'.
         one_body_tensor: The one-body tensor of the Hamiltonian.
         two_body_tensor: The two-body tensor of the Hamiltonian.
         norb: The number of spatial orbitals.
@@ -251,8 +252,9 @@ def solve_sci_batch(
 
     Args:
         ci_strings: List of pairs (strings_a, strings_b) of arrays of spin-alpha CI
-            strings and spin-beta CI strings whose Cartesian product give the basis of
-            the subspace in which to perform a diagonalization.
+            strings and spin-beta CI strings. When 'cartesian_product=True'their Cartesian product give the basis of
+            the subspace in which to perform a diagonalization. When 'cartesian_product=False'their concatenation give the basis of
+            the subspace in which to perform a diagonalization. i.e. 'det[i] = concatenate(strings_a[i], strings_b[i])'.
         one_body_tensor: The one-body tensor of the Hamiltonian.
         two_body_tensor: The two-body tensor of the Hamiltonian.
         norb: The number of spatial orbitals.
