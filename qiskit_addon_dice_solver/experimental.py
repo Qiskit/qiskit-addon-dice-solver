@@ -93,7 +93,7 @@ class experimental_SCIState:
 
     @property
     def cartesian_product_structure(self):
-        """Whether the state is specified by the cartesian product of two lists of alpha and beta determinants"""
+        """Whether the state is specified by the cartesian product of two lists of alpha and beta determinants."""
         return len(self.amplitudes.shape) == 2
 
     def save(self, filename):
