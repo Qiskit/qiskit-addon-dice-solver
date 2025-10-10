@@ -801,7 +801,7 @@ def _construct_ci_vec_from_amplitudes(
             ci_strs_b[j] = uniques_b[j]
     else:
         ci_vec = np.array(amps)
-        ci_strs_a = strs_a
-        ci_strs_b = strs_b
+        ci_strs_a = np.array(strs_a)
+        ci_strs_b = np.array(strs_b)
 
     return ci_vec, ci_strs_a, ci_strs_b
