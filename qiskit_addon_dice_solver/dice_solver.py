@@ -255,7 +255,9 @@ def solve_hci(
     temp_dir = temp_dir or tempfile.gettempdir()
     dice_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=temp_dir))
 
-
+    # We want to see the temporary directory in order to look for it later
+    print("Dice temporary directory: ",dice_dir)
+    
     # Write the integrals out as an FCI dump for Dice command line app
     active_space_path = dice_dir / "fcidump.txt"
     tools.fcidump.from_integrals(active_space_path, hcore, eri, norb, nelec)
