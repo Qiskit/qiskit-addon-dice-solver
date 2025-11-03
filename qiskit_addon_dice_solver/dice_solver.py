@@ -62,7 +62,7 @@ def solve_sci(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> SCIResult:
+) -> SCIResult | list[SCIResult]:
     """Diagonalize Hamiltonian in subspace defined by CI strings.
 
     Args:
@@ -106,7 +106,14 @@ def solve_sci(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
+
+    if n_roots > 1:
+        sci_res_list = []
+        for i in range(n_roots):
+            sci_res_list.append(SCIResult(energy[i], sci_state[i], orbital_occupancies=occupancies[i]))
+        return sci_res_list
+    elif n_roots == 1:
+        return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
 
 
 def solve_sci_batch(
@@ -121,7 +128,7 @@ def solve_sci_batch(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> list[SCIResult]:
+) -> list[SCIResult] | list[list[SCIResult]]:
     """Diagonalize Hamiltonian in subspaces.
 
     Args:
@@ -248,8 +255,6 @@ def solve_hci(
     temp_dir = temp_dir or tempfile.gettempdir()
     dice_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=temp_dir))
 
-    # We want to see the temporary directory in order to look for it later
-    print("Dice temporary directory: ",dice_dir)
 
     # Write the integrals out as an FCI dump for Dice command line app
     active_space_path = dice_dir / "fcidump.txt"
@@ -308,7 +313,7 @@ def solve_fermion(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
+) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]] | tuple[list[float], list[SCIState], list[tuple[np.ndarray, np.ndarray]]]:
     """
     Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
