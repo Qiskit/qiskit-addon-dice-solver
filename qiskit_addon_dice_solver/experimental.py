@@ -404,6 +404,12 @@ def solve_hci(
         print("Overwrite 'cartesian_product' option to 'True'")
         cartesian_product = True
 
+    if nelec[0] != nelec[1] and symmetrize_spin:
+        symmetrize_spin = False
+        print(
+            "The value of `symmetrize_spin=True` is incompatible with different numbers of spin-up and spin-dwn electrons. Overwriting `symmetrize_spin=False`"
+        )
+
     if cartesian_product and not symmetrize_spin:
         print(
             "`cartesian_product=True` and `symmetrize_spin=False` are incompatible inputs. Overwriting `symmetrize_spin=True`"
