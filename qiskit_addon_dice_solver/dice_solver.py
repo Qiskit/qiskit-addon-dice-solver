@@ -27,7 +27,7 @@ import numpy as np
 from pyscf import tools
 from qiskit_addon_sqd.fermion import SCIResult, SCIState, bitstring_matrix_to_ci_strs
 
-from qiskit_addon_dice_solver._accelerate import dice_outfile_reader
+from qiskit_addon_dice_solver._accelerate import from_bin_file_to_sci
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -408,10 +408,9 @@ def _read_dice_outputs(
     sci_state: SCIState | None = None
     if return_sci_state:
         # Construct the SCI wavefunction coefficients from Dice output dets.bin
-        sci_coefficients, ci_strs_a, ci_strs_b = dice_outfile_reader.from_bin_file_to_sci(
+        sci_coefficients, ci_strs_a, ci_strs_b = from_bin_file_to_sci(
             os.path.join(dice_dir, "dets.bin")
         )
-
         sci_state = SCIState(
             amplitudes=sci_coefficients,
             ci_strs_a=ci_strs_a,
