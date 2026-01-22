@@ -179,8 +179,7 @@ def solve_hci(
     clean_temp_dir: bool = True,
     return_sci_state: bool = True,
 ) -> tuple[float, SCIState | None, tuple[np.ndarray, np.ndarray]]:
-    """
-    Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
+    """Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
     In order to leverage the multi-processing nature of this tool, the user must specify
     the CPU resources to use via the `mpirun_options` argument.
