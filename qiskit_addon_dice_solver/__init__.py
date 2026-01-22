@@ -28,7 +28,6 @@ Functions
 from .dice_solver import solve_fermion, solve_hci, solve_sci, solve_sci_batch
 
 __all__ = [
-    "solve_dice",
     "solve_fermion",
     "solve_hci",
     "solve_sci",
