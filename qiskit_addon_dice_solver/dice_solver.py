@@ -25,9 +25,9 @@ from pathlib import Path
 
 import numpy as np
 from pyscf import tools
-
 from qiskit_addon_sqd.fermion import SCIResult, SCIState, bitstring_matrix_to_ci_strs
-from qiskit_addon_dice_solver import dice_outfile_reader
+
+from qiskit_addon_dice_solver._accelerate import dice_outfile_reader
 
 # Ensure the runtime linker can find the local boost binaries at runtime
 DICE_BIN = os.path.join(os.path.abspath(os.path.dirname(__file__)), "bin")
@@ -178,8 +178,7 @@ def solve_hci(
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
 ) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
-    """
-    Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
+    """Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
     In order to leverage the multi-processing nature of this tool, the user must specify
     the CPU resources to use via the `mpirun_options` argument.
@@ -289,8 +288,7 @@ def solve_fermion(
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
 ) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]:
-    """
-    Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
+    """Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
     This solver is designed for compatibility with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>`_ workflows.
 
@@ -381,7 +379,9 @@ def solve_fermion(
 
 
 def _read_dice_outputs(
-    dice_dir: str | Path, norb: int, nelec: tuple[int, int],
+    dice_dir: str | Path,
+    norb: int,
+    nelec: tuple[int, int],
 ) -> tuple[float, SCIState, np.ndarray]:
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
     # Read in the avg orbital occupancies
@@ -394,15 +394,15 @@ def _read_dice_outputs(
             avg_occupancies[int(orbital_id // 2 + parity * norb)] = spin1_rdm_dice[i, 2]
 
     # Read in the estimated ground state energy
-    file_energy = open(os.path.join(dice_dir, "shci.e"), "rb")
-    bytestring_energy = file_energy.read(8)
+    with open(os.path.join(dice_dir, "shci.e"), "rb") as file_energy:
+        bytestring_energy = file_energy.read(8)
     energy_dice = struct.unpack("d", bytestring_energy)[0]
 
     # Construct the SCI wavefunction coefficients from Dice output dets.bin
     sci_coefficients, ci_strs_a, ci_strs_b = dice_outfile_reader.from_bin_file_to_sci(
         os.path.join(dice_dir, "dets.bin")
     )
-    
+
     sci_state = SCIState(
         amplitudes=sci_coefficients,
         ci_strs_a=ci_strs_a,
@@ -422,14 +422,12 @@ def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> No
     if mpirun_options:
         if isinstance(mpirun_options, str):
             mpirun_options = mpirun_options.split()
-        dice_call = ["mpirun"] + list(mpirun_options) + [dice_path]
+        dice_call = ["mpirun", *list(mpirun_options), dice_path]
     else:
         dice_call = ["mpirun", dice_path]
 
     with open(dice_log_path, "w") as logfile:
-        process = subprocess.run(
-            dice_call, cwd=dice_dir, stdout=logfile, stderr=logfile
-        )
+        process = subprocess.run(dice_call, cwd=dice_dir, stdout=logfile, stderr=logfile)
     rdm_path = dice_dir / "spin1RDM.0.0.txt"
     # We check this manually because Dice is returning non-zero codes on successful executions,
     # so we can't rely on the status code to tell us whether Dice executed succesfully. Unclear
@@ -507,27 +505,23 @@ def _write_input_files(
         nocc,
         dummy_det,
     ]
-    file1 = open(os.path.join(dice_dir, "input.dat"), "w")
-    file1.writelines(input_list)
-    file1.close()
+    with open(os.path.join(dice_dir, "input.dat"), "w") as file1:
+        file1.writelines(input_list)
 
     ### Write the determinants to dice dir ###
     str_a, str_b = ci_strs
     bytes_a = _ci_strs_to_bytes(str_a)
     bytes_b = _ci_strs_to_bytes(str_b)
-    file1 = open(os.path.join(dice_dir, "AlphaDets.bin"), "wb")  # type: ignore
-    for bytestring in bytes_a:
-        file1.write(bytestring)  # type: ignore
-    file1.close()
-    file1 = open(os.path.join(dice_dir, "BetaDets.bin"), "wb")  # type: ignore
-    for bytestring in bytes_b:
-        file1.write(bytestring)  # type: ignore
-    file1.close()
+    with open(os.path.join(dice_dir, "AlphaDets.bin"), "wb") as file1:  # type: ignore
+        for bytestring in bytes_a:
+            file1.write(bytestring)  # type: ignore
+    with open(os.path.join(dice_dir, "BetaDets.bin"), "wb") as file1:  # type: ignore
+        for bytestring in bytes_b:
+            file1.write(bytestring)  # type: ignore
 
 
 def _integer_to_bytes(n: int) -> bytes:
-    """
-    Pack an integer into 16 bytes.
+    """Pack an integer into 16 bytes.
 
     The 16 is hard-coded because that is what the modified Dice branch
     expects currently.

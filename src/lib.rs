@@ -16,9 +16,9 @@ use std::fs::File;
 /// (2) unique and sorted alpha CIs (determinants), and
 /// (3) unique and sorted beta CIs.
 #[pyfunction]
-fn from_bin_file_to_sci(py: Python, path: &str) -> PyResult<PyObject> {
+fn from_bin_file_to_sci(py: Python, path: &str) -> PyResult<Py<PyAny>> {
     let (amps, dets_a, dets_b) =
-        py.allow_threads(|| -> PyResult<(Vec<f64>, Vec<u64>, Vec<u64>)> {
+        py.detach(|| -> PyResult<(Vec<f64>, Vec<u64>, Vec<u64>)> {
             let file = File::open(path)
                 .map_err(|e| pyo3::exceptions::PyIOError::new_err(format!("File error: {}", e)))?;
             let mmap = unsafe { Mmap::map(&file) }
@@ -66,19 +66,17 @@ fn from_bin_file_to_sci(py: Python, path: &str) -> PyResult<PyObject> {
         pyo3::exceptions::PyValueError::new_err(format!("Array shape error: {}", e))
     })?;
 
-    let ci_vec_array = PyArray::from_owned_array_bound(py, array);
-    let unique_a_array = PyArray1::from_vec_bound(py, unique_a);
-    let unique_b_array = PyArray1::from_vec_bound(py, unique_b);
+    let ci_vec_array = PyArray::from_owned_array(py, array);
+    let unique_a_array = PyArray1::from_vec(py, unique_a);
+    let unique_b_array = PyArray1::from_vec(py, unique_b);
 
-    Ok(PyTuple::new_bound(
-        py,
-        &[
-            ci_vec_array.to_object(py),
-            unique_a_array.to_object(py),
-            unique_b_array.to_object(py),
-        ],
-    )
-    .to_object(py))
+    let ci_obj: Py<PyAny> = ci_vec_array.unbind().into();
+    let a_obj: Py<PyAny> = unique_a_array.unbind().into();
+    let b_obj: Py<PyAny> = unique_b_array.unbind().into();
+
+    let tup = PyTuple::new(py, &[ci_obj, a_obj, b_obj])?;
+
+    Ok(tup.unbind().into())
 }
 
 /// Process bytes to compute amplitudes and alpha and beta determinants.
@@ -233,7 +231,7 @@ fn get_unique_and_map(values: &[u64]) -> (Vec<u64>, HashMap<u64, usize>) {
 }
 
 #[pymodule]
-fn dice_outfile_reader(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _accelerate(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(from_bin_file_to_sci, m)?)?;
     Ok(())
 }

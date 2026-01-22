@@ -1,3 +1,5 @@
+# Rust
+Cargo.lock
 *.egg-info/
 .ipynb_checkpoints/
 *__pycache__
@@ -6,5 +8,3 @@ build/
 envs/
 test/dice_solver_logfile.log
 qiskit_addon_dice_solver/bin/
-*.so
-target/

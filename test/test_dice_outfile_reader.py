@@ -3,7 +3,7 @@ import struct
 
 import numpy as np
 
-from qiskit_addon_dice_solver.dice_outfile_reader import from_bin_file_to_sci
+from qiskit_addon_dice_solver._accelerate import from_bin_file_to_sci
 
 
 def to_dice_det_str(alpha: str, beta: str):

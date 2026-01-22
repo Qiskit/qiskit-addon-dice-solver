@@ -47,7 +47,9 @@ Operating systems:
 
 ### Requirements
 
-The package needs Rust compiler. Follow plafrom-specific instructions [here](https://www.rust-lang.org/tools/install) to install Rust.
+#### Rust toolchain
+
+Follow plafrom-specific instructions [here](https://www.rust-lang.org/tools/install) to install Rust.
 
 #### Ubuntu
 
