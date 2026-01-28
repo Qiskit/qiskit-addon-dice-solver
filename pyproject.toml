@@ -61,7 +61,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100
-src = ["qiskit_addon_sqd", "test"]
+src = ["qiskit_addon_dice_solver", "test"]
 target-version = "py39"
 
 [tool.ruff.lint]
