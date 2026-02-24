@@ -30,7 +30,9 @@ Operating systems:
 Installation
 ------------
 
-First, install some required libraries:
+First, install the Rust toolchain. Refer to the `Rust documentation <https://www.rust-lang.org/tools/install>`__ for platform-specific instructions.
+
+Next, install some required libraries:
 
 .. code-block:: bash
 
