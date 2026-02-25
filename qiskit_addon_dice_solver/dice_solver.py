@@ -75,6 +75,7 @@ def solve_sci(
         norb: The number of spatial orbitals.
         nelec: The numbers of alpha and beta electrons.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        n_roots: The number of eigenvalues to compute
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
             invocation of ``Dice``. These may be formatted as a ``Sequence`` of strings or a single string. If a ``Sequence``,
@@ -98,7 +99,7 @@ def solve_sci(
         nelec=nelec,
         ci_strs=ci_strings,
         spin_sq=spin_sq,
-        n_roots = n_roots,
+        n_roots=n_roots,
         # Large select cutoff to prevent the addition of additional configurations
         select_cutoff=2147483647,
         energy_tol=1e-10,
@@ -111,7 +112,9 @@ def solve_sci(
     if n_roots > 1:
         sci_res_list = []
         for i in range(n_roots):
-            sci_res_list.append(SCIResult(energy[i], sci_state[i], orbital_occupancies=occupancies[i]))
+            sci_res_list.append(
+                SCIResult(energy[i], sci_state[i], orbital_occupancies=occupancies[i])
+            )
         return sci_res_list
     elif n_roots == 1:
         return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
@@ -141,6 +144,7 @@ def solve_sci_batch(
         norb: The number of spatial orbitals.
         nelec: The numbers of alpha and beta electrons.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        n_roots: The number of eigenvalues to calculate
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
             invocation of ``Dice``. These may be formatted as a ``Sequence`` of strings or a single string. If a ``Sequence``,
@@ -165,7 +169,7 @@ def solve_sci_batch(
             norb=norb,
             nelec=nelec,
             spin_sq=spin_sq,
-            n_roots = n_roots,
+            n_roots=n_roots,
             mpirun_options=mpirun_options,
             temp_dir=temp_dir,
             clean_temp_dir=clean_temp_dir,
@@ -190,7 +194,10 @@ def solve_hci(
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
     return_sci_state: bool = True,
-) -> tuple[float, SCIState | None, tuple[np.ndarray, np.ndarray]] | tuple[list[float], list[SCIState] | None, list[tuple[np.ndarray, np.ndarray]]]:
+) -> (
+    tuple[float, SCIState | None, tuple[np.ndarray, np.ndarray]]
+    | tuple[list[float], list[SCIState] | None, list[tuple[np.ndarray, np.ndarray]]]
+):
     """Approximate the ground state of a molecular Hamiltonian using the heat bath configuration interaction method.
 
     In order to leverage the multi-processing nature of this tool, the user must specify
@@ -225,6 +232,7 @@ def solve_hci(
             A CI string is specified as an integer whose binary expansion encodes the string. For example,
             the Hartree-Fock string with 3 electrons in 5 orbitals is `0b00111`.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        n_roots: The number of eigenvalues to calculate
         select_cutoff: Cutoff threshold for retaining state vector coefficients.
         energy_tol: Energy floating point tolerance.
         max_iter: The maximum number of HCI iterations to perform.
@@ -259,8 +267,8 @@ def solve_hci(
     dice_dir = Path(tempfile.mkdtemp(prefix="dice_cli_files_", dir=temp_dir))
 
     # We want to see the temporary directory in order to look for it later
-    print("Dice temporary directory: ",dice_dir)
-    
+    print("Dice temporary directory: ", dice_dir)
+
     # Write the integrals out as an FCI dump for Dice command line app
     active_space_path = dice_dir / "fcidump.txt"
     tools.fcidump.from_integrals(active_space_path, hcore, eri, norb, nelec)
@@ -297,8 +305,8 @@ def solve_hci(
         for avg_occ in avg_occupancies:
             avg_occupancies_split.append((avg_occ[:norb], avg_occ[norb:]))
         return (
-            e_dice, 
-            sci_state, 
+            e_dice,
+            sci_state,
             avg_occupancies_split,
         )
     elif n_roots == 1:
@@ -320,7 +328,10 @@ def solve_fermion(
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
-) -> tuple[float, SCIState, tuple[np.ndarray, np.ndarray]] | tuple[list[float], list[SCIState], list[tuple[np.ndarray, np.ndarray]]]:
+) -> (
+    tuple[float, SCIState, tuple[np.ndarray, np.ndarray]]
+    | tuple[list[float], list[SCIState], list[tuple[np.ndarray, np.ndarray]]]
+):
     """Approximate the ground state of a molecular Hamiltonian given a bitstring matrix defining the Hilbert subspace.
 
     This solver is designed for compatibility with `qiskit-addon-sqd <https://qiskit.github.io/qiskit-addon-sqd/>`_ workflows.
@@ -360,6 +371,7 @@ def solve_fermion(
                 The expected ordering is ``([a_str_0, ..., a_str_N], [b_str_0, ..., b_str_M])``.
         hcore: Core Hamiltonian matrix representing single-electron integrals
         eri: Electronic repulsion integrals representing two-electron integrals
+        n_roots: The number of eigenvalues to calculate
         open_shell: A flag specifying whether configurations from the left and right
             halves of the bitstrings should be kept separate. If ``False``, CI strings
             from the left and right halves of the bitstrings are combined into a single
@@ -418,14 +430,18 @@ def _read_dice_outputs(
     nelec: tuple[int, int],
     n_roots: int = 1,
     return_sci_state: bool = True,
-) -> tuple[float, SCIState | None, np.ndarray] | tuple[list[float], list[SCIState] | None, list[np.ndarray]]:
+) -> (
+    tuple[float, SCIState | None, np.ndarray]
+    | tuple[list[float], list[SCIState] | None, list[np.ndarray]]
+):
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
-
     ## Code for multiple roots
     if n_roots > 1:
         avg_occupancies = []
         for root in range(n_roots):
-            spin1_rdm_dice = np.loadtxt(os.path.join(dice_dir, f"spin1RDM.{root}.{root}.txt"), skiprows=1)
+            spin1_rdm_dice = np.loadtxt(
+                os.path.join(dice_dir, f"spin1RDM.{root}.{root}.txt"), skiprows=1
+            )
             avg_occupancy = np.zeros(2 * norb)
             for i in range(spin1_rdm_dice.shape[0]):
                 if spin1_rdm_dice[i, 0] == spin1_rdm_dice[i, 1]:
@@ -445,18 +461,13 @@ def _read_dice_outputs(
                 avg_occupancies[int(orbital_id // 2 + parity * norb)] = spin1_rdm_dice[i, 2]
 
     # Read in the estimated ground state energy
-    file_energy = open(os.path.join(dice_dir, "shci.e"), "rb")
-    
-    # Trial for multiple roots energy reading
     format_file = ["d"] * n_roots
     format_file = "".join(format_file)
-    calc_e = struct.unpack(format_file, file_energy.read())
-    file_energy.close()
+    with open(os.path.join(dice_dir, "shci.e"), "rb") as file_energy:
+        calc_e = struct.unpack(format_file, file_energy.read())
+
     # Now format for multiple or single roots
-    if n_roots == 1:
-        energy_dice = calc_e[0]
-    else:
-        energy_dice = list(calc_e)
+    energy_dice = calc_e[0] if n_roots == 1 else list(calc_e)
 
     sci_state: SCIState | list[SCIState] | None = None
     if return_sci_state:
@@ -482,14 +493,16 @@ def _read_dice_outputs(
                 else:
                     sci_coefficients, ci_strs_a, ci_strs_b = from_bin_file_to_sci(
                         os.path.join(dice_dir, f"dets_{root}.bin")
-                    )  
-                sci_state.append(SCIState(
-                    amplitudes=sci_coefficients,
-                    ci_strs_a=ci_strs_a,
-                    ci_strs_b=ci_strs_b,
-                    norb=norb,
-                    nelec=nelec,
-                ))
+                    )
+                sci_state.append(
+                    SCIState(
+                        amplitudes=sci_coefficients,
+                        ci_strs_a=ci_strs_a,
+                        ci_strs_b=ci_strs_b,
+                        norb=norb,
+                        nelec=nelec,
+                    )
+                )
 
     return energy_dice, sci_state, avg_occupancies
 
