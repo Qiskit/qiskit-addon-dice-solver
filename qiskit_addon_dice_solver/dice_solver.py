@@ -129,8 +129,7 @@ def solve_sci(
                 SCIResult(energy[i], sci_state[i], orbital_occupancies=occupancies[i])
             )
         return sci_res_list
-    else:
-        return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
+    return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
 
 
 def solve_sci_batch(
@@ -324,12 +323,11 @@ def solve_hci(
             sci_state,
             avg_occupancies_split,
         )  # type: ignore
-    else:
-        return (
-            e_dice,
-            sci_state,
-            (avg_occupancies[:norb], avg_occupancies[norb:]),
-        )  # type: ignore
+    return (
+        e_dice,
+        sci_state,
+        (avg_occupancies[:norb], avg_occupancies[norb:]),
+    )  # type: ignore
 
 
 def solve_fermion(
