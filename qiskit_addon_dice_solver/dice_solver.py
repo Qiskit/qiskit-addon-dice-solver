@@ -48,6 +48,7 @@ class DiceExecutionError(Exception):
             f"See the log file at {log_path} for more details."
         )
         super().__init__(message)
+        return
 
 
 def solve_sci(
@@ -91,6 +92,9 @@ def solve_sci(
 
     Returns:
         The diagonalization result.
+
+    Raises:
+        ValueError: ``n_roots`` must be a positive integer
     """
     energy, sci_state, occupancies = solve_hci(
         hcore=one_body_tensor,
@@ -108,15 +112,24 @@ def solve_sci(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-
+    if n_roots < 1:
+        raise ValueError("n_roots must be a positive integer")
     if n_roots > 1:
+        if (
+            not isinstance(energy, list)
+            or not isinstance(sci_state, list)
+            or not isinstance(occupancies, list)
+        ):
+            raise TypeError(
+                "Multiple roots were requested, but multiple eigenpairs weren't calculated."
+            )
         sci_res_list = []
         for i in range(n_roots):
             sci_res_list.append(
                 SCIResult(energy[i], sci_state[i], orbital_occupancies=occupancies[i])
             )
         return sci_res_list
-    elif n_roots == 1:
+    else:
         return SCIResult(energy, sci_state, orbital_occupancies=occupancies)
 
 
@@ -252,10 +265,12 @@ def solve_hci(
 
     Returns:
         - Minimum energy from SCI calculation
-        - Approximate ground state from SCI, or None if `return_sci_state` is set to
-          False
+        - Approximate ground state from SCI, or None if `return_sci_state` is set to False
         - Average orbital occupancy
+        - ``n_roots`` must be a positive integer
     """
+    if n_roots < 1:
+        raise ValueError("n_roots must be a positive integer.")
     n_alpha, n_beta = nelec
 
     if ci_strs is None:
@@ -308,13 +323,13 @@ def solve_hci(
             e_dice,
             sci_state,
             avg_occupancies_split,
-        )
-    elif n_roots == 1:
+        ) # type: ignore
+    else:
         return (
             e_dice,
             sci_state,
             (avg_occupancies[:norb], avg_occupancies[norb:]),
-        )
+        ) # type: ignore
 
 
 def solve_fermion(
@@ -421,7 +436,7 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_state, avg_occupancies
+    return e_dice, sci_state, avg_occupancies # type: ignore
 
 
 def _read_dice_outputs(
@@ -437,7 +452,7 @@ def _read_dice_outputs(
     """Calculate the estimated ground state energy and average orbitals occupancies from Dice outputs."""
     ## Code for multiple roots
     if n_roots > 1:
-        avg_occupancies = []
+        avg_occupancies_list = []
         for root in range(n_roots):
             spin1_rdm_dice = np.loadtxt(
                 os.path.join(dice_dir, f"spin1RDM.{root}.{root}.txt"), skiprows=1
@@ -449,7 +464,8 @@ def _read_dice_outputs(
                     parity = orbital_id % 2
                     avg_occupancy[int(orbital_id // 2 + parity * norb)] = spin1_rdm_dice[i, 2]
             # Append the n-th root avg occupancies to the list
-            avg_occupancies.append(avg_occupancy)
+            avg_occupancies_list.append(avg_occupancy)
+        avg_occupancies = np.array(avg_occupancies_list)
     elif n_roots == 1:
         # Read in the avg orbital occupancies
         spin1_rdm_dice = np.loadtxt(os.path.join(dice_dir, "spin1RDM.0.0.txt"), skiprows=1)
@@ -461,8 +477,7 @@ def _read_dice_outputs(
                 avg_occupancies[int(orbital_id // 2 + parity * norb)] = spin1_rdm_dice[i, 2]
 
     # Read in the estimated ground state energy
-    format_file = ["d"] * n_roots
-    format_file = "".join(format_file)
+    format_file = "d" * n_roots
     with open(os.path.join(dice_dir, "shci.e"), "rb") as file_energy:
         calc_e = struct.unpack(format_file, file_energy.read())
 
@@ -504,7 +519,7 @@ def _read_dice_outputs(
                     )
                 )
 
-    return energy_dice, sci_state, avg_occupancies
+    return energy_dice, sci_state, avg_occupancies # type: ignore
 
 
 def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> None:
