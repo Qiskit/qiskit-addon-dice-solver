@@ -323,13 +323,13 @@ def solve_hci(
             e_dice,
             sci_state,
             avg_occupancies_split,
-        ) # type: ignore
+        )  # type: ignore
     else:
         return (
             e_dice,
             sci_state,
             (avg_occupancies[:norb], avg_occupancies[norb:]),
-        ) # type: ignore
+        )  # type: ignore
 
 
 def solve_fermion(
@@ -436,7 +436,7 @@ def solve_fermion(
         temp_dir=temp_dir,
         clean_temp_dir=clean_temp_dir,
     )
-    return e_dice, sci_state, avg_occupancies # type: ignore
+    return e_dice, sci_state, avg_occupancies  # type: ignore
 
 
 def _read_dice_outputs(
@@ -519,7 +519,7 @@ def _read_dice_outputs(
                     )
                 )
 
-    return energy_dice, sci_state, avg_occupancies # type: ignore
+    return energy_dice, sci_state, avg_occupancies  # type: ignore
 
 
 def _call_dice(dice_dir: Path, mpirun_options: Sequence[str] | str | None) -> None:
