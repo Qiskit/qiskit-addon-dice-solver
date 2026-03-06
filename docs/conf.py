@@ -79,6 +79,7 @@ autodoc_member_order = "bysource"
 autodoc_default_options = {
     "inherited-members": None,
 }
+autodoc_mock_imports = ["qiskit_addon_dice_solver._accelerate"]
 
 
 # This adds numbers to the captions for figures, tables,
