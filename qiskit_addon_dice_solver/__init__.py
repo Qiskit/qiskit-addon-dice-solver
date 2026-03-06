@@ -25,9 +25,16 @@ Functions
    solve_hci
 """
 
-from .dice_solver import solve_fermion, solve_hci, solve_sci, solve_sci_batch
+from .dice_solver import (
+    SCIStateSparse,
+    solve_fermion,
+    solve_hci,
+    solve_sci,
+    solve_sci_batch,
+)
 
 __all__ = [
+    "SCIStateSparse",
     "solve_fermion",
     "solve_hci",
     "solve_sci",
