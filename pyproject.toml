@@ -21,7 +21,7 @@ dev = [
     "tox>=4.4.3",
 ]
 style = [
-    "ruff==0.14.14",
+    "ruff==0.15.8",
 ]
 lint = [
     "qiskit-addon-dice-solver[style]",
