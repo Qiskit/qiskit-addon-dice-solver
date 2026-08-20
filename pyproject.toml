@@ -6,8 +6,14 @@ build-backend = "maturin"
 name = "qiskit-addon-dice-solver"
 version = "0.3.0"
 readme = "README.md"
-license = {file = "LICENSE.txt"}
+license = "Apache-2.0"
 requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Intended Audience :: Science/Research",
+]
 
 dependencies = [
     "numpy",
