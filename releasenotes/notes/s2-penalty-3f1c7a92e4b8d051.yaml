@@ -1,0 +1,26 @@
+---
+features:
+  - |
+    :func:`qiskit_addon_dice_solver.solve_hci`,
+    :func:`qiskit_addon_dice_solver.solve_sci`,
+    :func:`qiskit_addon_dice_solver.solve_sci_batch`, and
+    :func:`qiskit_addon_dice_solver.solve_fermion` now accept ``spin_penalty``
+    and ``ss_target`` arguments, which apply an :math:`S^2` level-shift penalty
+    during the variational solve in order to target a specific total spin:
+
+    .. code-block:: python
+
+       result = solve_sci_batch(
+           ci_strings, hcore, eri, norb=norb, nelec=nelec,
+           spin_penalty=0.1,   # strength; 0.0 (default) disables
+           ss_target=2.0,      # target <S^2> = s(s+1)
+       )
+
+    This mirrors the scheme used by ``pyscf.fci.addons.fix_spin_``, which
+    ``qiskit-addon-sqd``'s PySCF-based solver already uses, so the two solvers
+    are directly comparable on spin-sensitive systems.
+
+    When ``spin_penalty`` is ``0.0`` (the default) no keyword is written to the
+    ``Dice`` input file, so existing behavior is unchanged and no rebuild of
+    the ``Dice`` binary is required. Using a nonzero value requires a ``Dice``
+    build that supports the ``spinPenalty`` keyword.

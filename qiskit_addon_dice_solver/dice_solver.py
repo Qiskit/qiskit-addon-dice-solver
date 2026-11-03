@@ -60,6 +60,8 @@ def solve_sci(
     *,
     # TODO allow spin_sq to be None
     spin_sq: float | None = None,
+    spin_penalty: float = 0.0,
+    ss_target: float | None = None,
     n_roots: int = 1,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
@@ -76,6 +78,13 @@ def solve_sci(
         norb: The number of spatial orbitals.
         nelec: The numbers of alpha and beta electrons.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        spin_penalty: Strength of an S^2 level-shift penalty applied during the variational
+            solve: ``(H + spin_penalty * (S^2 - ss_target)) |psi> = E |psi>``. Zero (the
+            default) disables the penalty and emits no keyword, so an unpatched ``Dice``
+            binary is unaffected. Requires a ``Dice`` build with ``spinPenalty`` support.
+        ss_target: Target value of the total spin squared, ``<S^2> = s(s+1)``. If ``None``,
+            ``Dice`` infers the lowest spin compatible with the reference determinant.
+            Only used when ``spin_penalty`` is nonzero.
         n_roots: The number of eigenvalues to compute
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
@@ -103,6 +112,8 @@ def solve_sci(
         nelec=nelec,
         ci_strs=ci_strings,
         spin_sq=spin_sq,
+        spin_penalty=spin_penalty,
+        ss_target=ss_target,
         n_roots=n_roots,
         # Large select cutoff to prevent the addition of additional configurations
         select_cutoff=2147483647,
@@ -140,6 +151,8 @@ def solve_sci_batch(
     nelec: tuple[int, int],
     *,
     spin_sq: float | None = None,
+    spin_penalty: float = 0.0,
+    ss_target: float | None = None,
     n_roots: int = 1,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
@@ -156,6 +169,13 @@ def solve_sci_batch(
         norb: The number of spatial orbitals.
         nelec: The numbers of alpha and beta electrons.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        spin_penalty: Strength of an S^2 level-shift penalty applied during the variational
+            solve: ``(H + spin_penalty * (S^2 - ss_target)) |psi> = E |psi>``. Zero (the
+            default) disables the penalty and emits no keyword, so an unpatched ``Dice``
+            binary is unaffected. Requires a ``Dice`` build with ``spinPenalty`` support.
+        ss_target: Target value of the total spin squared, ``<S^2> = s(s+1)``. If ``None``,
+            ``Dice`` infers the lowest spin compatible with the reference determinant.
+            Only used when ``spin_penalty`` is nonzero.
         n_roots: The number of eigenvalues to calculate
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
@@ -181,6 +201,8 @@ def solve_sci_batch(
             norb=norb,
             nelec=nelec,
             spin_sq=spin_sq,
+            spin_penalty=spin_penalty,
+            ss_target=ss_target,
             n_roots=n_roots,
             mpirun_options=mpirun_options,
             temp_dir=temp_dir,
@@ -198,6 +220,8 @@ def solve_hci(
     nelec: tuple[int, int],
     ci_strs: tuple[np.ndarray, np.ndarray] | None = None,
     spin_sq: float | None = None,
+    spin_penalty: float = 0.0,
+    ss_target: float | None = None,
     n_roots: int = 1,
     select_cutoff: float = 5e-4,
     energy_tol: float = 1e-10,
@@ -244,6 +268,13 @@ def solve_hci(
             A CI string is specified as an integer whose binary expansion encodes the string. For example,
             the Hartree-Fock string with 3 electrons in 5 orbitals is `0b00111`.
         spin_sq: Target value for the total spin squared for the ground state. If ``None``, no spin will be imposed.
+        spin_penalty: Strength of an S^2 level-shift penalty applied during the variational
+            solve: ``(H + spin_penalty * (S^2 - ss_target)) |psi> = E |psi>``. Zero (the
+            default) disables the penalty and emits no keyword, so an unpatched ``Dice``
+            binary is unaffected. Requires a ``Dice`` build with ``spinPenalty`` support.
+        ss_target: Target value of the total spin squared, ``<S^2> = s(s+1)``. If ``None``,
+            ``Dice`` infers the lowest spin compatible with the reference determinant.
+            Only used when ``spin_penalty`` is nonzero.
         n_roots: The number of eigenvalues to calculate
         select_cutoff: Cutoff threshold for retaining state vector coefficients.
         energy_tol: Energy floating point tolerance.
@@ -295,6 +326,8 @@ def solve_hci(
         num_dn=n_beta,
         dice_dir=dice_dir,
         spin_sq=spin_sq,
+        spin_penalty=spin_penalty,
+        ss_target=ss_target,
         n_roots=n_roots,
         select_cutoff=select_cutoff,
         energy_tol=energy_tol,
@@ -338,6 +371,8 @@ def solve_fermion(
     *,
     n_roots: int = 1,
     open_shell: bool = False,
+    spin_penalty: float = 0.0,
+    ss_target: float | None = None,
     mpirun_options: Sequence[str] | str | None = None,
     temp_dir: str | Path | None = None,
     clean_temp_dir: bool = True,
@@ -389,6 +424,13 @@ def solve_fermion(
             halves of the bitstrings should be kept separate. If ``False``, CI strings
             from the left and right halves of the bitstrings are combined into a single
             set of unique configurations and used for both the alpha and beta subspaces.
+        spin_penalty: Strength of an S^2 level-shift penalty applied during the variational
+            solve: ``(H + spin_penalty * (S^2 - ss_target)) |psi> = E |psi>``. Zero (the
+            default) disables the penalty and emits no keyword, so an unpatched ``Dice``
+            binary is unaffected. Requires a ``Dice`` build with ``spinPenalty`` support.
+        ss_target: Target value of the total spin squared, ``<S^2> = s(s+1)``. If ``None``,
+            ``Dice`` infers the lowest spin compatible with the reference determinant.
+            Only used when ``spin_penalty`` is nonzero.
         mpirun_options: Options controlling the CPU resource allocation for the ``Dice`` command line application.
             These command-line options will be passed directly to the ``mpirun`` command line application during
             invocation of ``Dice``. These may be formatted as a ``Sequence`` of strings or a single string. If a ``Sequence``,
@@ -425,6 +467,8 @@ def solve_fermion(
         ci_strs=ci_strs,
         # Hard-code S^2 = 0 until other values are supported
         spin_sq=0.0,
+        spin_penalty=spin_penalty,
+        ss_target=ss_target,
         n_roots=n_roots,
         # Large select cutoff to prevent the addition of additional configurations
         select_cutoff=2147483647,
@@ -554,6 +598,8 @@ def _write_input_files(
     num_dn: int,
     dice_dir: str | Path,
     spin_sq: float | None,
+    spin_penalty: float,
+    ss_target: float | None,
     n_roots: int,
     select_cutoff: float,
     energy_tol: float,
@@ -568,8 +614,26 @@ def _write_input_files(
     num_elec = num_up + num_dn
     # Return only the lowest-energy state
     nroots = f"nroots {int(n_roots)}\n"
-    # Spin squared
+    # Spin squared.
+    #
+    # NOTE: despite the name, Dice's `spin` keyword is an integer 2*Sz
+    # used for reference-determinant selection -- it is NOT <S^2>. On the
+    # branch this package builds it is parsed but appears never to be
+    # consumed (see Qiskit/qiskit-addon-dice-solver#59). Preserved here
+    # unchanged.
     spin = f"spin {spin_sq}\n" if spin_sq is not None else ""
+    # S^2 level-shift penalty (requires the Dice S^2 patch):
+    #     (H + spin_penalty * (S^2 - ss_target)) |Psi> = E |Psi>
+    # A genuine total-spin constraint, following the same scheme as PySCF's
+    # fci.addons.fix_spin_. Omitted entirely when spin_penalty == 0 so that an
+    # unpatched Dice binary -- which treats an unknown keyword as fatal
+    # ("cannot read option spinPenalty", then exit) -- keeps working.
+    if spin_penalty:
+        spin_pen = f"spinPenalty {float(spin_penalty)}\n"
+        if ss_target is not None:
+            spin_pen += f"ssTarget {float(ss_target)}\n"
+    else:
+        spin_pen = ""
     # Path to active space dump
     orbitals = "orbitals fcidump.txt\n"
     # The Dice/Riken branch this package is built on modifies the normal behavior
@@ -600,6 +664,7 @@ def _write_input_files(
     input_list = [
         nroots,
         spin,
+        spin_pen,
         orbitals,
         schedule,
         davidson_tol,
